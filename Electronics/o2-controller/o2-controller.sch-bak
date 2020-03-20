@@ -396,14 +396,56 @@ Wire Wire Line
 Wire Wire Line
 	3175 6375 3175 6575
 $Comp
-L reprapltd-kicad:Arduino_UNO_R3_Shield A?
+L reprapltd-kicad:Arduino_UNO_R3_Shield A1
 U 1 1 5E74C103
 P 5625 4000
-F 0 "A?" H 5625 5181 50  0000 C CNN
+F 0 "A1" H 5625 5181 50  0000 C CNN
 F 1 "Arduino_UNO_R3_Shield" H 5625 5090 50  0000 C CNN
 F 2 "reprapltd-kicad:Arduino_UNO_R3_Shield" H 5625 4000 50  0001 C CIN
 F 3 "https://www.arduino.cc/en/Main/arduinoBoardUno" H 5625 4000 50  0001 C CNN
 	1    5625 4000
 	1    0    0    -1  
 $EndComp
+$Comp
+L Connector:Conn_01x02_Male J?
+U 1 1 5E7511B4
+P 5250 5650
+F 0 "J?" H 5358 5831 50  0000 C CNN
+F 1 "Conn_01x02_Male" H 5358 5740 50  0000 C CNN
+F 2 "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical" H 5250 5650 50  0001 C CNN
+F 3 "~" H 5250 5650 50  0001 C CNN
+	1    5250 5650
+	-1   0    0    -1  
+$EndComp
+$Comp
+L Connector:Conn_01x02_Male J?
+U 1 1 5E752191
+P 5250 6400
+F 0 "J?" H 5358 6581 50  0000 C CNN
+F 1 "Conn_01x02_Male" H 5358 6490 50  0000 C CNN
+F 2 "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical" H 5250 6400 50  0001 C CNN
+F 3 "~" H 5250 6400 50  0001 C CNN
+	1    5250 6400
+	-1   0    0    -1  
+$EndComp
+Wire Wire Line
+	5050 6400 4800 6400
+Wire Wire Line
+	4800 4200 5125 4200
+Wire Wire Line
+	5050 5650 4925 5650
+Wire Wire Line
+	4925 5650 4925 4300
+Wire Wire Line
+	4925 4300 5125 4300
+Text GLabel 5050 6725 2    50   Input ~ 0
+GND
+Wire Wire Line
+	5050 6500 5050 6725
+Wire Wire Line
+	4800 4200 4800 6400
+Text GLabel 5050 5950 2    50   Input ~ 0
+GND
+Wire Wire Line
+	5050 5750 5050 5950
 $EndSCHEMATC
