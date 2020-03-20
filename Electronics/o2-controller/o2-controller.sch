@@ -14,17 +14,6 @@ Comment3 ""
 Comment4 ""
 $EndDescr
 $Comp
-L MCU_Module:Arduino_UNO_R3 A1
-U 1 1 5E73948C
-P 5625 4000
-F 0 "A1" H 5625 5181 50  0000 C CNN
-F 1 "Arduino_UNO_R3" H 5625 5090 50  0000 C CNN
-F 2 "Module:Arduino_UNO_R3" H 5625 4000 50  0001 C CIN
-F 3 "https://www.arduino.cc/en/Main/arduinoBoardUno" H 5625 4000 50  0001 C CNN
-	1    5625 4000
-	1    0    0    -1  
-$EndComp
-$Comp
 L Transistor_FET:DMN6075S Q1
 U 1 1 5E73A75D
 P 3275 1250
@@ -406,4 +395,15 @@ Wire Wire Line
 	3175 5250 3175 5450
 Wire Wire Line
 	3175 6375 3175 6575
+$Comp
+L reprapltd-kicad:Arduino_UNO_R3_Shield A1
+U 1 1 5E74C103
+P 5625 4000
+F 0 "A1" H 5625 5181 50  0000 C CNN
+F 1 "Arduino_UNO_R3_Shield" H 5625 5090 50  0000 C CNN
+F 2 "reprapltd-kicad:Arduino_UNO_R3_Shield" H 5625 4000 50  0001 C CIN
+F 3 "https://www.arduino.cc/en/Main/arduinoBoardUno" H 5625 4000 50  0001 C CNN
+	1    5625 4000
+	1    0    0    -1  
+$EndComp
 $EndSCHEMATC

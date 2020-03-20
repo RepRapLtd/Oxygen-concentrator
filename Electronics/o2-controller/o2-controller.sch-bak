@@ -14,17 +14,6 @@ Comment3 ""
 Comment4 ""
 $EndDescr
 $Comp
-L MCU_Module:Arduino_UNO_R3 A1
-U 1 1 5E73948C
-P 5625 4000
-F 0 "A1" H 5625 5181 50  0000 C CNN
-F 1 "Arduino_UNO_R3" H 5625 5090 50  0000 C CNN
-F 2 "Module:Arduino_UNO_R3" H 5625 4000 50  0001 C CIN
-F 3 "https://www.arduino.cc/en/Main/arduinoBoardUno" H 5625 4000 50  0001 C CNN
-	1    5625 4000
-	1    0    0    -1  
-$EndComp
-$Comp
 L Transistor_FET:DMN6075S Q1
 U 1 1 5E73A75D
 P 3275 1250
@@ -70,8 +59,6 @@ F 3 "~" H 2975 825 50  0001 C CNN
 $EndComp
 Text GLabel 3175 625  2    50   Input ~ 0
 +7.5V
-Wire Wire Line
-	3175 650  3175 825 
 Wire Wire Line
 	3175 925  3175 1050
 Wire Wire Line
@@ -160,8 +147,6 @@ $EndComp
 Text GLabel 3175 1775 2    50   Input ~ 0
 +7.5V
 Wire Wire Line
-	3175 1800 3175 1975
-Wire Wire Line
 	3175 2075 3175 2200
 Wire Wire Line
 	3600 2400 3575 2400
@@ -207,8 +192,6 @@ F 3 "~" H 2975 3150 50  0001 C CNN
 $EndComp
 Text GLabel 3175 2950 2    50   Input ~ 0
 +7.5V
-Wire Wire Line
-	3175 2975 3175 3150
 Wire Wire Line
 	3175 3250 3175 3375
 Wire Wire Line
@@ -256,8 +239,6 @@ $EndComp
 Text GLabel 3175 4100 2    50   Input ~ 0
 +7.5V
 Wire Wire Line
-	3175 4125 3175 4300
-Wire Wire Line
 	3175 4400 3175 4525
 Wire Wire Line
 	3600 4725 3575 4725
@@ -304,8 +285,6 @@ $EndComp
 Text GLabel 3175 5250 2    50   Input ~ 0
 +7.5V
 Wire Wire Line
-	3175 5275 3175 5450
-Wire Wire Line
 	3175 5550 3175 5675
 Wire Wire Line
 	3600 5875 3575 5875
@@ -351,8 +330,6 @@ F 3 "~" H 2975 6575 50  0001 C CNN
 $EndComp
 Text GLabel 3175 6375 2    50   Input ~ 0
 +7.5V
-Wire Wire Line
-	3175 6400 3175 6575
 Wire Wire Line
 	3175 6675 3175 6800
 Wire Wire Line
@@ -406,4 +383,27 @@ Wire Wire Line
 	5750 1600 5750 1925
 Wire Wire Line
 	5750 2225 5750 2425
+Wire Wire Line
+	3175 625  3175 825 
+Wire Wire Line
+	3175 1775 3175 1975
+Wire Wire Line
+	3175 2950 3175 3150
+Wire Wire Line
+	3175 4100 3175 4300
+Wire Wire Line
+	3175 5250 3175 5450
+Wire Wire Line
+	3175 6375 3175 6575
+$Comp
+L reprapltd-kicad:Arduino_UNO_R3_Shield A?
+U 1 1 5E74C103
+P 5625 4000
+F 0 "A?" H 5625 5181 50  0000 C CNN
+F 1 "Arduino_UNO_R3_Shield" H 5625 5090 50  0000 C CNN
+F 2 "reprapltd-kicad:Arduino_UNO_R3_Shield" H 5625 4000 50  0001 C CIN
+F 3 "https://www.arduino.cc/en/Main/arduinoBoardUno" H 5625 4000 50  0001 C CNN
+	1    5625 4000
+	1    0    0    -1  
+$EndComp
 $EndSCHEMATC
