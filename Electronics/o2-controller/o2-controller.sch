@@ -38,12 +38,12 @@ $EndComp
 $Comp
 L Device:CP C2
 U 1 1 5E73F844
-P 5750 2075
-F 0 "C2" H 5868 2121 50  0000 L CNN
-F 1 "220uF" H 5868 2030 50  0000 L CNN
-F 2 "Capacitor_SMD:C_Elec_10x10.2" H 5788 1925 50  0001 C CNN
-F 3 "~" H 5750 2075 50  0001 C CNN
-	1    5750 2075
+P 5575 1275
+F 0 "C2" H 5693 1321 50  0000 L CNN
+F 1 "220uF" H 5693 1230 50  0000 L CNN
+F 2 "Capacitor_SMD:C_Elec_10x10.2" H 5613 1125 50  0001 C CNN
+F 3 "~" H 5575 1275 50  0001 C CNN
+	1    5575 1275
 	1    0    0    -1  
 $EndComp
 $Comp
@@ -86,31 +86,29 @@ Wire Wire Line
 Wire Wire Line
 	5525 5200 5525 5100
 Connection ~ 5625 5200
-Text GLabel 5525 2600 2    50   Input ~ 0
+Text GLabel 5525 2275 2    50   Input ~ 0
 +7.5V
-Wire Wire Line
-	5525 3000 5525 2600
-Text GLabel 5750 1600 2    50   Input ~ 0
+Text GLabel 5575 800  2    50   Input ~ 0
 +7.5V
-Text GLabel 5750 2425 2    50   Input ~ 0
+Text GLabel 5575 1625 2    50   Input ~ 0
 GND
 $Comp
 L Device:C C1
 U 1 1 5E748AEE
-P 5350 2075
-F 0 "C1" H 5465 2121 50  0000 L CNN
-F 1 "0.1uF" H 5465 2030 50  0000 L CNN
-F 2 "Capacitor_SMD:C_0805_2012Metric" H 5388 1925 50  0001 C CNN
-F 3 "~" H 5350 2075 50  0001 C CNN
-	1    5350 2075
+P 5175 1275
+F 0 "C1" H 5290 1321 50  0000 L CNN
+F 1 "0.1uF" H 5290 1230 50  0000 L CNN
+F 2 "Capacitor_SMD:C_0805_2012Metric" H 5213 1125 50  0001 C CNN
+F 3 "~" H 5175 1275 50  0001 C CNN
+	1    5175 1275
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	5350 1925 5750 1925
-Connection ~ 5750 1925
+	5175 1125 5575 1125
+Connection ~ 5575 1125
 Wire Wire Line
-	5350 2225 5750 2225
-Connection ~ 5750 2225
+	5175 1425 5575 1425
+Connection ~ 5575 1425
 $Comp
 L Transistor_FET:DMN6075S Q2
 U 1 1 5E75EF4A
@@ -378,11 +376,11 @@ Wire Wire Line
 Wire Wire Line
 	4450 7000 3875 7000
 Wire Wire Line
-	5750 1950 5750 1925
+	5575 1150 5575 1125
 Wire Wire Line
-	5750 1600 5750 1925
+	5575 800  5575 975 
 Wire Wire Line
-	5750 2225 5750 2425
+	5575 1425 5575 1525
 Wire Wire Line
 	3175 625  3175 825 
 Wire Wire Line
@@ -448,4 +446,65 @@ Text GLabel 5050 5950 2    50   Input ~ 0
 GND
 Wire Wire Line
 	5050 5750 5050 5950
+$Comp
+L Connector:Conn_01x02_Male J9
+U 1 1 5E78B21C
+P 6475 1200
+F 0 "J9" H 6583 1381 50  0000 C CNN
+F 1 "Conn_01x02_Male" H 6583 1290 50  0000 C CNN
+F 2 "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical" H 6475 1200 50  0001 C CNN
+F 3 "~" H 6475 1200 50  0001 C CNN
+	1    6475 1200
+	-1   0    0    -1  
+$EndComp
+$Comp
+L Connector:Conn_01x02_Male J10
+U 1 1 5E78C087
+P 7050 1200
+F 0 "J10" H 7158 1381 50  0000 C CNN
+F 1 "Conn_01x02_Male" H 7158 1290 50  0000 C CNN
+F 2 "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical" H 7050 1200 50  0001 C CNN
+F 3 "~" H 7050 1200 50  0001 C CNN
+	1    7050 1200
+	-1   0    0    -1  
+$EndComp
+Wire Wire Line
+	6850 975  6850 1200
+Connection ~ 5575 975 
+Wire Wire Line
+	5575 975  5575 1125
+Wire Wire Line
+	5575 1525 6275 1525
+Wire Wire Line
+	6850 1525 6850 1300
+Connection ~ 5575 1525
+Wire Wire Line
+	5575 1525 5575 1625
+Wire Wire Line
+	6275 1300 6275 1525
+Connection ~ 6275 1525
+Wire Wire Line
+	6275 1525 6850 1525
+Wire Wire Line
+	6275 1200 6275 975 
+Wire Wire Line
+	5575 975  6275 975 
+Connection ~ 6275 975 
+Wire Wire Line
+	6275 975  6850 975 
+$Comp
+L Connector:Conn_01x02_Male J11
+U 1 1 5E7997E3
+P 5325 2550
+F 0 "J11" H 5433 2731 50  0000 C CNN
+F 1 "Conn_01x02_Male" H 5433 2640 50  0000 C CNN
+F 2 "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical" H 5325 2550 50  0001 C CNN
+F 3 "~" H 5325 2550 50  0001 C CNN
+	1    5325 2550
+	1    0    0    1   
+$EndComp
+Wire Wire Line
+	5525 2275 5525 2450
+Wire Wire Line
+	5525 2550 5525 3000
 $EndSCHEMATC
