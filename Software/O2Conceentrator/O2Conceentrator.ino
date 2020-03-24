@@ -35,39 +35,77 @@ const int o2LevelHigh = 9;
 // Timings (in ms) and other variables
 
 #define VOT 100
-int valveOpenTime = VOT;
+long valveOpenTime = VOT;
 
 #define VCT 100
-int valveCloseTime = VCT;
+long valveCloseTime = VCT;
 
 #define ZIT 1000
-int zeoliteInTime = ZIT;
+long zeoliteInTime = ZIT;
 
 #define ZHT 3000
-int zeoliteHoldTime = ZHT;
+long zeoliteHoldTime = ZHT;
 
 #define ZOT 500
-int zeoliteOutTime = ZOT;
+long zeoliteOutTime = ZOT;
 
 #define PT 1000
-int purgeTime = PT;
+long purgeTime = PT;
 
 #define CTF 1
-int cyclesToFull = CTF;
+long cyclesToFull = CTF;
 
-int cycleCount = cyclesToFull + 1;
+long cycleCount = cyclesToFull + 1;
 int arm = 0;
 
+// Read and write longs into EEPROM, 
+// returning an opdated pointer in each case.
+
+int EepromWriteLong(int ptr, long v)
+{
+  unsigned char c;
+  for(int b = 0; b < 4; b++)
+  {
+    c = v & 0xff;
+    EEPROM.write(ptr, c);
+    ptr++;
+    v = v >> 8;
+  }
+  return ptr;
+}
+
+int EepromReadLong(int ptr, long& v)
+{
+  v = 0;
+  long r = 0;
+  for(int b = 0; b < 4; b++)
+  {
+    r = EEPROM.read(ptr);
+    r = r << 8*b;
+    v = v | r;
+    ptr++;
+  }
+  return ptr;
+}
 
 // Save all the settings to the EEPROM, starting with the validation tag string
 
 void SaveToEeprom()
 {
-  int i = 0;
-  while(eTag[i])
+  int ptr = 0;
+  while(eTag[ptr])
   {
-      EEPROM.write(i, eTag[i]);
+      EEPROM.write(ptr, eTag[ptr]);
+      ptr++;
   }
+  
+  ptr = EepromWriteLong(ptr, valveOpenTime);
+  ptr = EepromWriteLong(ptr, valveCloseTime);
+  ptr = EepromWriteLong(ptr, zeoliteInTime);
+  ptr = EepromWriteLong(ptr, zeoliteHoldTime);
+  ptr = EepromWriteLong(ptr, zeoliteOutTime);
+  ptr = EepromWriteLong(ptr, purgeTime);
+  ptr = EepromWriteLong(ptr, cyclesToFull);
 }
 
 // Load the default values.
@@ -85,25 +123,29 @@ void LoadDefaults()
 }
 
 
-
-
-
 // Check if the EEPROM starts with a valid tag string.  If not, load the default data.
 // If it does, load from the EEPROM.
 
 void LoadDataFromEepromOrSetDefaults()
 {
-  int i = 0;
-  while(eTag[i])
+  int ptr = 0;
+  while(eTag[ptr])
   {
-    if(EEPROM.read(i) != eTag[i])
+    if(EEPROM.read(ptr) != eTag[ptr])
     {
       LoadDefaults();
       return;
     }
-    i++;
+    ptr++;
   }
- 
+  
+  ptr = EepromReadLong(ptr, valveOpenTime);
+  ptr = EepromReadLong(ptr, valveCloseTime);
+  ptr = EepromReadLong(ptr, zeoliteInTime);
+  ptr = EepromReadLong(ptr, zeoliteHoldTime);
+  ptr = EepromReadLong(ptr, zeoliteOutTime);
+  ptr = EepromReadLong(ptr, purgeTime);
+  ptr = EepromReadLong(ptr, cyclesToFull); 
 }
 
 // Allow the user to change values.
@@ -135,11 +177,11 @@ void Control()
     // Inactive and not needed. Make sure all valves are closed (not needed 
     // for function, but reduces current consumption).
 
-    for(arm = 0; arm < 2; arm++)
+    for(int a = 0; a < 2; a++)
     {
-      digitalWrite(zeoliteIn[arm], LOW);
-      digitalWrite(zeoliteOut[arm], LOW);
-      digitalWrite(airVent[arm], LOW);
+      digitalWrite(zeoliteIn[a], LOW);
+      digitalWrite(zeoliteOut[a], LOW);
+      digitalWrite(airVent[a], LOW);
     }
     delay(valveCloseTime);
     
