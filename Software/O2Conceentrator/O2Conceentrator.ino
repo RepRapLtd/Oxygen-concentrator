@@ -32,7 +32,7 @@ const int airVent[2] = {4, 7};
 const int o2LevelLow = 8;
 const int o2LevelHigh = 9;
 
-// Timings (in ms)
+// Timings (in ms) and other variables
 
 #define VOT 100
 int valveOpenTime = VOT;
@@ -51,6 +51,12 @@ int zeoliteOutTime = ZOT;
 
 #define PT 1000
 int purgeTime = PT;
+
+#define CTF 1
+int cyclesToFull = CTF;
+
+int cycleCount = cyclesToFull + 1;
+int arm = 0;
 
 
 // Save all the settings to the EEPROM, starting with the validation tag string
@@ -74,6 +80,7 @@ void LoadDefaults()
   zeoliteHoldTime = ZHT;
   zeoliteOutTime = ZOT;
   purgeTime = PT;
+  cyclesToFull = CTF;
   SaveToEeprom();
 }
 
@@ -110,6 +117,96 @@ void Command()
 
 void Control()
 {
+  // Are we inactive?
+  
+  if(cycleCount >= cyclesToFull)
+  {
+    
+    // Yes, inactive; do we need to become active?
+    
+    if(!digitalRead(o2LevelLow))
+    {
+      // Yes - resetting the cycle count will automatically make that happen.
+      
+      cycleCount = 0;
+      return;
+    }
+
+    // Inactive and not needed. Make sure all valves are closed (not needed 
+    // for function, but reduces current consumption).
+
+    for(arm = 0; arm < 2; arm++)
+    {
+      digitalWrite(zeoliteIn[arm], LOW);
+      digitalWrite(zeoliteOut[arm], LOW);
+      digitalWrite(airVent[arm], LOW);
+    }
+    delay(valveCloseTime);
+    
+    return;
+  }
+
+  // We are active; start by shutting all valves
+
+  digitalWrite(zeoliteIn[arm], LOW);
+  digitalWrite(zeoliteOut[arm], LOW);
+  digitalWrite(airVent[arm], LOW);
+  delay(valveCloseTime);
+
+  // Let the compressed air into the chamber
+
+  digitalWrite(zeoliteIn[arm], HIGH);  
+  delay(valveOpenTime);
+
+  // Wait for the air to fill the chamber
+
+  delay(zeoliteInTime);
+
+  // Close the input valve
+
+  digitalWrite(zeoliteIn[arm], LOW);  
+  delay(valveCloseTime);
+
+  // Wait for the zeolite to adsorb the N2
+
+  delay(zeoliteHoldTime);
+
+  // Let the O2 go to the output
+
+  digitalWrite(zeoliteOut[arm], HIGH);
+  delay(valveOpenTime);
+
+  // Wait for it to get there
+
+  delay(zeoliteOutTime);
+
+  // Close the output valve
+
+  digitalWrite(zeoliteOut[arm], LOW);
+  delay(valveCloseTime);
+
+  // Open the purge valve and the compressed air to blow through
+
+  digitalWrite(airVent[arm], HIGH);
+  digitalWrite(zeoliteIn[arm], HIGH); 
+  delay(valveOpenTime);
+
+  // Wait for the purge
+
+  delay(purgeTime);
+
+  // Close the input valve; leave the purge valve open
+
+  digitalWrite(zeoliteIn[arm], LOW);  
+  delay(valveCloseTime);
+
+  // That was one cycle
+  
+  cycleCount++;
+
+  // Swap to the other arm for the next cycle
+  
+  arm = 1 - arm;
 }
 
 
@@ -117,15 +214,17 @@ void setup()
 {
 // Solenoid Valve control pins
 
-  for(int lr = 0; lr < 2; lr++)
+  for(arm = 0; arm < 2; arm++)
   {
-    pinMode(zeoliteIn[lr], OUTPUT);
-    pinMode(zeoliteOut[lr], OUTPUT);
-    pinMode(airVent[lr], OUTPUT);
-    digitalWrite(zeoliteIn[lr], LOW);
-    digitalWrite(zeoliteOut[lr], LOW);
-    digitalWrite(airVent[lr], LOW);
+    pinMode(zeoliteIn[arm], OUTPUT);
+    pinMode(zeoliteOut[arm], OUTPUT);
+    pinMode(airVent[arm], OUTPUT);
+    digitalWrite(zeoliteIn[arm], LOW);
+    digitalWrite(zeoliteOut[arm], LOW);
+    digitalWrite(airVent[arm], LOW);
   }
+
+  arm = 0;
 
 // O2 level sensor pins
 
