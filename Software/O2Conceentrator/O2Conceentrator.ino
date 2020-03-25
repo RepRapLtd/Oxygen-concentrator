@@ -17,6 +17,10 @@
 
 #include <EEPROM.h>
 
+#define BAUD 9600
+
+const bool debug = true;
+
 // Tag string to see if EEPROM contents are valid
 
 const char* eTag = "uAuAuA";
@@ -92,6 +96,9 @@ int EepromReadLong(int ptr, long& v)
 
 void SaveToEeprom()
 {
+  if(debug)
+    Serial.println("Saving variables to EEPROM.");
+    
   int ptr = 0;
   while(eTag[ptr])
   {
@@ -112,6 +119,9 @@ void SaveToEeprom()
 
 void LoadDefaults()
 {
+  if(debug)
+    Serial.println("Loading default variables.");
+    
   valveOpenTime = VOT;
   valveCloseTime = VCT;
   zeoliteInTime = ZIT;
@@ -138,6 +148,9 @@ void LoadDataFromEepromOrSetDefaults()
     }
     ptr++;
   }
+
+  if(debug)
+    Serial.println("Loading variables from EEPROM.");
   
   ptr = EepromReadLong(ptr, valveOpenTime);
   ptr = EepromReadLong(ptr, valveCloseTime);
@@ -148,11 +161,85 @@ void LoadDataFromEepromOrSetDefaults()
   ptr = EepromReadLong(ptr, cyclesToFull); 
 }
 
+
+void Help()
+{
+  Serial.println("\nConcentrator variables");
+  Serial.println(" All times in milliseconds. Current values in brackets.");
+  Serial.print(" Valve open time (");  
+  Serial.print(valveOpenTime);
+  Serial.print(") - o\n Valve close time (");
+  Serial.print(valveCloseTime);
+  Serial.print(") - c\n Zeolite in time (");
+  Serial.print(zeoliteInTime);
+  Serial.print(") - i\n Zeolite hold time (");
+  Serial.print(zeoliteHoldTime);
+  Serial.print(") - h\n Zeolite exit time (");
+  Serial.print(zeoliteOutTime);
+  Serial.print(") - e\n Purge time (");
+  Serial.print(purgeTime);
+  Serial.print(") - p\n Cycles to full time (");
+  Serial.print(cyclesToFull);
+  Serial.println(") - y");
+  Serial.println(" Load default values - d");
+  Serial.println(" Print this list - ?\n");
+}
+
+long ReadInteger()
+{
+  return (long)Serial.parseInt(); 
+}
+
 // Allow the user to change values.
 // Save all the values to EEPROM whenever one changes.
 
 void Command()
 {
+
+  if(Serial.available() <= 0)
+    return; 
+    
+  int c = Serial.read();
+  switch(c)
+  {
+    case 'o':
+      valveOpenTime = ReadInteger();
+      break;
+
+    case 'c':
+      valveCloseTime = ReadInteger();
+      break;
+      
+    case 'i':
+      zeoliteInTime = ReadInteger();
+      break;
+      
+    case 'h':
+      zeoliteHoldTime = ReadInteger();
+      break;
+      
+    case 'e':
+      zeoliteOutTime = ReadInteger();
+      break;
+      
+    case 'p':
+      purgeTime = ReadInteger();
+      break;
+      
+    case 'y':
+      cyclesToFull = ReadInteger();
+      break;
+
+    case 'd':
+      LoadDefaults();
+      break;
+      
+    case '?':
+    default:
+      Help();
+  }
+  
+  SaveToEeprom();
 }
 
 // Control O2 generation
@@ -188,6 +275,13 @@ void Control()
     return;
   }
 
+  if(debug)
+  {
+    Serial.print("Concentrator is active. Shutting valves on ");
+    Serial.print(arm);
+    Serial.println(" side.");
+  }
+
   // We are active; start by shutting all valves
 
   digitalWrite(zeoliteIn[arm], LOW);
@@ -196,6 +290,9 @@ void Control()
   delay(valveCloseTime);
 
   // Let the compressed air into the chamber
+
+  if(debug)
+    Serial.println("Air in.");
 
   digitalWrite(zeoliteIn[arm], HIGH);  
   delay(valveOpenTime);
@@ -210,11 +307,17 @@ void Control()
   delay(valveCloseTime);
 
   // Wait for the zeolite to adsorb the N2
-
+  
+  if(debug)
+    Serial.println("Adsorbing N2.");
+    
   delay(zeoliteHoldTime);
 
   // Let the O2 go to the output
 
+  if(debug)
+    Serial.println("Sending O2 to the output.");
+    
   digitalWrite(zeoliteOut[arm], HIGH);
   delay(valveOpenTime);
 
@@ -228,6 +331,9 @@ void Control()
   delay(valveCloseTime);
 
   // Open the purge valve and the compressed air to blow through
+
+  if(debug)
+    Serial.println("Purge N2.");
 
   digitalWrite(airVent[arm], HIGH);
   digitalWrite(zeoliteIn[arm], HIGH); 
@@ -243,6 +349,9 @@ void Control()
   delay(valveCloseTime);
 
   // That was one cycle
+
+  if(debug)
+    Serial.println("Cycle complete.");
   
   cycleCount++;
 
@@ -271,11 +380,15 @@ void setup()
 // O2 level sensor pins
 
   pinMode(o2LevelLow, INPUT_PULLUP);
-  pinMode(o2LevelHigh, INPUT_PULLUP); 
+  pinMode(o2LevelHigh, INPUT_PULLUP);
+
+  Serial.begin(BAUD);
+
+  Serial.println("RepRap Ltd Oxygen Concentrator Starting");
  
   LoadDataFromEepromOrSetDefaults();
 
-  
+  Help();
 
 }
 
