@@ -178,7 +178,7 @@ void Help()
   Serial.print(zeoliteOutTime);
   Serial.print(") - e\n Purge time (");
   Serial.print(purgeTime);
-  Serial.print(") - p\n Cycles to full time (");
+  Serial.print(") - p\n Cycles to full (");
   Serial.print(cyclesToFull);
   Serial.println(") - y");
   Serial.println(" Load default values - d");
@@ -351,7 +351,7 @@ void Control()
   // That was one cycle
 
   if(debug)
-    Serial.println("Cycle complete.");
+    Serial.println("Cycle complete.\n");
   
   cycleCount++;
 
