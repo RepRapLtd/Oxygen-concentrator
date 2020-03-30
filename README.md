@@ -22,11 +22,11 @@ The best zeolite to use for this seems to be 13X, but we are still investigating
 
 At the bottom of the diagram, the compressed air is conditioned first by a silica gel filter to remove water vapour and then an activated carbon filter to remove CO<sub>2</sub>.  Both these gasses would reduce the efficiency of the zeolite, and (because of the preferential adsorption of the N<sub>2</sub>) atmospheric CO<sub>2</sub> would also become too concentrated in the output.  The carbon would be purged of adsorbed CO<sub>2</sub> from time to time in the same way as the purge described above.  The silical gel and maybe the zeolite would have to be dried periodically.  The simplest way to do that would probably be to put them in a kitchen oven (electric, not gas…).  You would have one set working in the machine, and another set being dried, then swap them over.  Silica gel can be obtained including an indicator which changes colour when it gets wet.
 
-The compressed air would be required at the sorts of pressures and flow rates easily achievable by a 12 volt care tyre inflator.  All the plumbing is done using push-fit pneumatic connectors and PU pipe.  
+The compressed air would be required at the sorts of pressures and flow rates easily achievable by a 12 volt care tyre inflator.  All the plumbing is done using push-fit pneumatic connectors and PU pipe.
 
-The best devices to use to contain the zeolite, carbon, and silica gel seem to be refillable in-line filter housing reverse osmosis units (see the bill of materials), which usefully come with 6mm push-fit couplings on the ends and built-in foam filters to retain particles of active material that will prevent the zeolite granules getting into the valves (or the patient…).  It would probably be a good idea if the device was actually arranged as shown with the flow up from the bottom to the top for the same reason.  As to size – the whole thing would be about microwave-oven size plus the compressor.
+The best devices to use to contain the zeolite, carbon, and silica gel seem to be refillable in-line filter housing reverse osmosis units (see the bill of materials), which usefully come with 6mm push-fit couplings on the ends and built-in foam filters to retain particles of active material.  These will prevent the zeolite granules getting into the valves (or the patient…).  It would probably be a good idea if the device was actually arranged as shown with the flow up from the bottom to the top for the same reason.  As to size – the whole thing would be about microwave-oven size plus the compressor.
 
-Throughout this we have deliberately linked to non-medical-grade common very-low-cost components and materials of about the quality that one might expect in – say – a child’s swimming snorkel and mask.  To be most useful, this thing has to be manufacturable anywhere in the World at low cost.  And you trust your child’s life to that snorkel and mask…
+In the Bill of Materials (see below) we have deliberately linked to non-medical-grade common very-low-cost components and materials of about the quality that one might expect in – say – a child’s swimming snorkel and mask.  To be most useful, this thing has to be manufacturable anywhere in the World at low cost.  And you trust your child’s life to that snorkel and mask…
 
 
 ## How can you help?
@@ -51,7 +51,7 @@ The first design is neither final nor prototyped yet, but there is nothing to st
 
 1. Bill-of-materials.ods
 
-   list of materials we used to build our prototype
+   spreadsheet of materials we used to build our prototype
 
 2. Documents
 
