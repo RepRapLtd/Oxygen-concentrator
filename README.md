@@ -38,8 +38,10 @@ Here’s how we see this developing:
 3. We and others make measurements (O2 concentration, CO2 contamination etc).
 4. Fix what’s needed to get those right.
 5. Fix anything needed to get the machine useful
-  1. In developing countries, and in the developed world in remote and emergency situations.
-  2. In the developed world in hospital and clinic situations.
+
+   In developing countries, and in the developed world in remote and emergency situations.
+
+   In the developed world in hospital and clinic situations.
 
 Note that we explicitly acknowledge that less rigorous standards are appropriate for emergencies than for well-controlled locations, and that that allows more benefit to be obtained than insisting on the highest standard everywhere.
 
@@ -48,20 +50,37 @@ The first design is neither final nor prototyped yet, but there is nothing to st
 ## What's in this repository
 
 1. Bill-of-materials.ods
+
    list of materials we used to build our prototype
+
 2. Documents
+
    Useful scientific papers and other materials
+
 3. Electronics
+
    [Kicad](https://www.kicad-pcb.org/) design for the Arduino Uno shield that controls the device
+
 4. LICENSE
+
    GPL V3
+
 5. Mechanics
+
    [FreeCAD](https://www.freecadweb.org/) designs for 3D prined parts of the machine (mainly simple brackets).
+
 6. Pix
+
    Images and photographs
+
 7. README.md
+
    This file
+
 8. Software
+
    Arduino C++ program to control the machine 
+
+
 
 
