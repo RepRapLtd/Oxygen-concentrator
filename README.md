@@ -67,7 +67,7 @@ The first design is neither final nor prototyped yet, but there is nothing to st
 
 5. Mechanics
 
-   [FreeCAD](https://www.freecadweb.org/) designs for 3D prined parts of the machine (mainly simple brackets).
+   [FreeCAD](https://www.freecadweb.org/) designs for 3D printed parts of the machine (mainly simple brackets).
 
 6. Pix
 
@@ -80,6 +80,10 @@ The first design is neither final nor prototyped yet, but there is nothing to st
 8. Software
 
    Arduino C++ program to control the machine 
+
+## Preliminary Test video
+
+[![Control System Test](http://img.youtube.com/vi/y4nPhJDR1PU/0.jpg)](https://www.youtube.com/watch?v=y4nPhJDR1PU "Control System Test")
 
 
 
