@@ -17,7 +17,11 @@
 
 #include <EEPROM.h>
 
+// Serial comms speed
+
 #define BAUD 9600
+
+// Print debugging information when true.
 
 const bool debug = true;
 
@@ -197,7 +201,9 @@ void Command()
 {
 
   if(Serial.available() <= 0)
-    return; 
+    return;
+
+  bool save = true;
     
   int c = Serial.read();
   switch(c)
@@ -232,14 +238,17 @@ void Command()
 
     case 'd':
       LoadDefaults();
+      save = false;
       break;
       
     case '?':
     default:
       Help();
+      save = false;
   }
-  
-  SaveToEeprom();
+
+  if(save)
+    SaveToEeprom();
 }
 
 // Control O2 generation
