@@ -4,23 +4,33 @@ This is the [RepRap Ltd](https://reprapltd.com) repository for all the informati
 
 The primary aim of this project is to get a working design out.  We hope that others will then use that as the basis for improvements and variations.  See the *How Can You Help* section below.  This repository now incorporates some ideas from comments to our original blog post about it.  A big **Thank You** to all who have made suggestions; please make more using the issue link above!
 
+Version 1 of this (up to commit [422aa3](https://github.com/RepRapLtd/Oxygen-concentrator/commit/422aaa3da3306aa2c95ef35095159bc0f398108a)) didn't work because the air was not flowing through the zeolite in a smooth consistent manner under pressure.  So this is now work-in-progress on Version 2 (from commit [3a930c0](https://github.com/RepRapLtd/Oxygen-concentrator/commit/3a930c09b3ee5cdb08eb29aa33c5f615ee4f58ef)) which we hope will fix the problem.
+
 ## Introduction
 
 ![Oxygen concentrator block diagram](Pix/o2-concentrator.png)
 
-With the World’s current problems caused by [covid-19](https://en.wikipedia.org/wiki/Coronavirus_disease_2019), it seemed to us that an open-source [oxygen concentrator](https://en.wikipedia.org/wiki/Oxygen_concentrator) would be a useful thing to have.  These are fairly simple devices that work by [pressure swing adsorbtion](https://en.wikipedia.org/wiki/Pressure_swing_adsorption#Rapid_PSA).  The block diagram for what we propose is shown above.
+With the World’s current problems caused by [covid-19](https://en.wikipedia.org/wiki/Coronavirus_disease_2019), it seemed to us that an open-source [oxygen concentrator](https://en.wikipedia.org/wiki/Oxygen_concentrator) would be a useful thing to have.  These are fairly simple devices that work by [pressure swing adsorbtion](https://en.wikipedia.org/wiki/Pressure_swing_adsorption#Rapid_PSA).  The block diagram for what we propose (Version 2) is shown above.
 
-To understand what’s going on, start at the end with the flow to the patient (top right).  There’s a small manual thumb valve (D) and flow meter that controls the flow of O<sub>2</sub> concentrate (that is, up to 90% O<sub>2</sub> with the rest N<sub>2</sub> and so on from the air).  90% is the figure quoted for the commercial machines, and it’s rather confusing.  We don’t think it means a gas that’s 90% O<sub>2</sub> (which we’re pretty sure would be toxic); we think it means 1.9 times as much oxygen as usual; in other words a gas that’s about 40% O<sub>2</sub> and 60% N<sub>2</sub> etc.  If you’re an anesthetist and actually know, drop an issue (link above), ideally with a reference.
+### How will it work?
 
-Before that the O<sub>2</sub> is passed through a rehydrator.  This bubbles the stream through water, which has UV LEDs illuminating it to keep it sterilised.  It comes from a constant pressure reservoir that has a sensor to tell the microcontroller (not shown) operating the entire machine when the level is getting low.  The current design uses an [Arduino Uno](https://store.arduino.cc/arduino-uno-rev3) as the controller.  The reservoir and sensor could be as simple as an [Ambu bag](https://en.wikipedia.org/wiki/Bag_valve_mask) between two hinged flat sheets with a weight on top and a switch that opens as the weight moves upwards.
+We don't know if it will until we test it, of course.  But the plan is this:
 
-When the weight drops the microcontroller drives a MOSFET to open the solenoid valve A (all the valves shown are normally closed) and compressed air flows into the zeolite granules in the chamber on the left.  N<sub>2</sub> has a large quadrupole moment (an aspect of the pattern of electric charges round the molecule) relative to O<sub>2</sub>. This means that it “fits” into the surface of zeolite much better and adsorbs onto it in preference, leaving the O<sub>2</sub> free in the chamber under pressure.  After about 3 seconds valve A is closed and valve B is opened allowing that O<sub>2</sub> into the pressure reservoir, then B is closed.
+Starting bottom right compressed air flows into two chambers to clean it up; silica gel will remove moisture, and activated carbon will remove C0<sub>2</sub>.
 
-Then that process is repeated with the zeolite on the right, while valve C on the left is opened to allow the N<sub>2</sub> in the left-hand chamber to desorb and vent to the air.
+All the valves are normally-closed types.  Valves *A* and *D* will be opened, which will allow the air to flow under pressure through the zeolite column on the left.  The pressure will be set indirectly by adjusting the *oxygen-flow-adjust* flow regulator. N<sub>2</sub> has a large [quadrupole moment](https://en.wikipedia.org/wiki/Quadrupole) (an aspect of the pattern of electric charges round the molecule) relative to O<sub>2</sub>. This means that it “fits” into the surface of zeolite much better and adsorbs onto it in preference, leaving the O<sub>2</sub> free in the chamber under pressure.  The  O<sub>2</sub>-enriched gas will flow up to the constant pressure reservoir, then through a rehydrator to restore the moisture removed by the silica gel, and on to the patient.
+
+After about 30 seconds or so (exact time to be determined experimentally...) the zeolite will be saturated with N<sub>2</sub>.  Valves *A* and *D* will be closed and valves *B* and *C* will be opened.  This will allow air at atmospheric pressure to flow through the zeolite purging the N<sub>2</sub> from it to the surrounding air.  The flow rate will be set by the *purge-flow-adjust* flow regulator.
+
+At the same time as those valve changes the cycle as just described will start for the zeolite column on the right by opening valves *A'* and *D'*.  Thus the O<sub>2</sub> flow will be maintained by the right hand column while the left hand column is purging.
+
+The whole cycle will then repeat, swapping between the left and right columns for as long as the O<sub>2</sub> is required.
+
+The level sense signal from the reservoir feeds into a microcontroller (not shown) that opens and closes the valves and handles all the timings.  This is an Arduino Uno with a shield PCB with MOSFETs to drive the valves.  When the reservoir is full all the *A* and *B* valves are closed to shut the process down.  When it gets low, the cycles are started again.  See the Electronics and Software directories in the repository.
 
 The best zeolite to use for this seems to be 13X, but we are still investigating that.
 
-At the bottom of the diagram, the compressed air is conditioned first by a silica gel filter to remove water vapour and then an activated carbon filter to remove CO<sub>2</sub>.  Both these gasses would reduce the efficiency of the zeolite, and (because of the preferential adsorption of the N<sub>2</sub>) atmospheric CO<sub>2</sub> would also become too concentrated in the output.  The carbon would be purged of adsorbed CO<sub>2</sub> from time to time in the same way as the purge described above.  The silical gel and maybe the zeolite would have to be dried periodically.  The simplest way to do that would probably be to put them in a kitchen oven (electric, not gas…).  You would have one set working in the machine, and another set being dried, then swap them over.  Silica gel can be obtained including an indicator which changes colour when it gets wet.
+Both vater vapour and C0<sub>2</sub> would reduce the efficiency of the zeolite, and (because of the preferential adsorption of the N<sub>2</sub>) atmospheric CO<sub>2</sub> would also become too concentrated in the output.  The active carbon would be purged of adsorbed CO<sub>2</sub> from time to time in the same way as the purge described above.  The silical gel and maybe the zeolite would have to be dried periodically.  The simplest way to do that would probably be to put them in a kitchen oven (electric, not gas…).  You would have one set working in the machine, and another set being dried, then swap them over.  Silica gel can be obtained including an indicator which changes colour when it gets wet.
 
 The compressed air would be required at the sorts of pressures and flow rates easily achievable by a 12 volt care tyre inflator.  All the plumbing is done using push-fit pneumatic connectors and PU pipe.
 
@@ -33,9 +43,9 @@ In the Bill of Materials (see below) we have deliberately linked to non-medical-
 
 Here’s how we see this developing:
 
-1. We’ll get our version working.
+1. We’ll get a version working.
 2. Other people make copies and variations.
-3. We and others make measurements (O2 concentration, CO2 contamination etc).
+3. We and others make measurements (O<sub>2</sub> concentration, C0<sub>2</sub> contamination etc).
 4. Fix what’s needed to get those right.
 5. Fix anything needed to get the machine useful
 
@@ -45,7 +55,7 @@ Here’s how we see this developing:
 
 Note that we explicitly acknowledge that less rigorous standards are appropriate for emergencies than for well-controlled locations, and that that allows more benefit to be obtained than insisting on the highest standard everywhere.
 
-The first design is neither final nor prototyped yet, but there is nothing to stop you taking what we have posted here and building it experimentally.  But the point where we would appreciate people getting involved is Stage 2. onwards.  In particular it’s important that others change the design to make improvements so that the best designs emerge from a large number of experiments (this is what happened with the [RepRap Project](https://reprap.org) and is the reason it was so successful).
+Version 2 is neither final nor prototyped yet, but there is nothing to stop you taking what we have posted here and building it experimentally.  But the point where we would appreciate people getting involved is Stage 2. onwards.  In particular it’s important that others change the design to make improvements so that the best designs emerge from a large number of experiments (this is what happened with the [RepRap Project](https://reprap.org) and is the reason it was so successful).
 
 ## What's in this repository
 
