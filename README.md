@@ -26,6 +26,8 @@ At the same time as those valve changes the cycle as just described will start f
 
 The whole cycle will then repeat, swapping between the left and right columns for as long as the O<sub>2</sub> is required.
 
+### Notes
+
 The level sense signal from the reservoir feeds into a microcontroller (not shown) that opens and closes the valves and handles all the timings.  This is an Arduino Uno with a shield PCB with MOSFETs to drive the valves.  When the reservoir is full all the *A* and *B* valves are closed to shut the process down.  When it gets low, the cycles are started again.  See the Electronics and Software directories in the repository.
 
 The best zeolite to use for this seems to be 13X, but we are still investigating that.
@@ -35,6 +37,8 @@ Both vater vapour and C0<sub>2</sub> would reduce the efficiency of the zeolite,
 The compressed air would be required at the sorts of pressures and flow rates easily achievable by a 12 volt care tyre inflator.  All the plumbing is done using push-fit pneumatic connectors and PU pipe.
 
 The best devices to use to contain the zeolite, carbon, and silica gel seem to be refillable in-line filter housing reverse osmosis units (see the bill of materials), which usefully come with 6mm push-fit couplings on the ends and built-in foam filters to retain particles of active material.  These will prevent the zeolite granules getting into the valves (or the patient…).  It would probably be a good idea if the device was actually arranged as shown with the flow up from the bottom to the top for the same reason.  As to size – the whole thing would be about microwave-oven size plus the compressor.
+
+All the valves in the prototype are simple on-off 12-volt normally-closed pneumatic valves.  This could almost certainly be simplified in production.  For example valves *A* and *B* could be combined into a single two-port valve, as could valves *C* and *D*.  It may even be possible to combine all four into a single rotating sleve valve.  This would considerably reduce costs, though the single valves are useful for prototyping as they can be re-purposed between versions of the design.
 
 In the Bill of Materials (see below) we have deliberately linked to non-medical-grade common very-low-cost components and materials of about the quality that one might expect in – say – a child’s swimming snorkel and mask.  To be most useful, this thing has to be manufacturable anywhere in the World at low cost.  And you trust your child’s life to that snorkel and mask…
 
