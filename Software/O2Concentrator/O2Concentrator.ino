@@ -17,13 +17,7 @@
  * 
  */
 
-// We need to save the parameters for when we reboot.
-
-#include <EEPROM.h>
-
-// Serial comms speed
-
-#define BAUD 9600
+#include "O2Concentrator.h"
 
 // Print debugging information when true.
 
@@ -46,6 +40,10 @@ const int o2LevelLow = 11;
 const int o2LevelHigh = 12;
 
 // Timings (in ms) and other variables
+
+o2FeedTime
+purgingTime
+shuttingDownTime
 
 #define VOT 100
 long valveOpenTime = VOT;
