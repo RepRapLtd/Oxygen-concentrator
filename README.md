@@ -16,7 +16,7 @@ With the World’s current problems caused by [covid-19](https://en.wikipedia.or
 
 We don't know if it will until we test it, of course.  But the plan is this:
 
-Starting bottom right compressed air flows into two chambers to clean it up; silica gel will remove moisture, and activated carbon will remove C0<sub>2</sub>.
+Starting bottom right compressed air flows into two chambers to clean it up; silica gel will remove moisture, and activated carbon will remove CO<sub>2</sub>.
 
 All the valves are normally-closed types.  Valves *A* and *D* will be opened, which will allow the air to flow under pressure through the zeolite column on the left.  The pressure will be set indirectly by adjusting the *oxygen-flow-adjust* flow regulator. N<sub>2</sub> has a large [quadrupole moment](https://en.wikipedia.org/wiki/Quadrupole) (an aspect of the pattern of electric charges round the molecule) relative to O<sub>2</sub>. This means that it “fits” into the surface of zeolite much better and adsorbs onto it in preference, leaving the O<sub>2</sub> free in the chamber under pressure.  The  O<sub>2</sub>-enriched gas will flow up to the constant pressure reservoir, then through a rehydrator to restore the moisture removed by the silica gel, and on to the patient.
 
@@ -32,7 +32,7 @@ The level sense signal from the reservoir feeds into a microcontroller (not show
 
 The best zeolite to use for this seems to be 13X, but we are still investigating that.
 
-Both vater vapour and C0<sub>2</sub> would reduce the efficiency of the zeolite, and (because of the preferential adsorption of the N<sub>2</sub>) atmospheric CO<sub>2</sub> would also become too concentrated in the output.  The active carbon would be purged of adsorbed CO<sub>2</sub> from time to time in the same way as the purge described above.  The silical gel and maybe the zeolite would have to be dried periodically.  The simplest way to do that would probably be to put them in a kitchen oven (electric, not gas…).  You would have one set working in the machine, and another set being dried, then swap them over.  Silica gel can be obtained including an indicator which changes colour when it gets wet.
+Both vater vapour and CO<sub>2</sub> would reduce the efficiency of the zeolite, and (because of the preferential adsorption of the N<sub>2</sub>) atmospheric CO<sub>2</sub> would also become too concentrated in the output.  The active carbon would be purged of adsorbed CO<sub>2</sub> from time to time in the same way as the purge described above.  The silical gel and maybe the zeolite would have to be dried periodically.  The simplest way to do that would probably be to put them in a kitchen oven (electric, not gas…).  You would have one set working in the machine, and another set being dried, then swap them over.  Silica gel can be obtained including an indicator which changes colour when it gets wet.
 
 The compressed air would be required at the sorts of pressures and flow rates easily achievable by a 12 volt care tyre inflator.  All the plumbing is done using push-fit pneumatic connectors and PU pipe.
 
@@ -49,7 +49,7 @@ Here’s how we see this developing:
 
 1. We’ll get a version working.
 2. Other people make copies and variations.
-3. We and others make measurements (O<sub>2</sub> concentration, C0<sub>2</sub> contamination etc).
+3. We and others make measurements (O<sub>2</sub> concentration, CO<sub>2</sub> contamination etc).
 4. Fix what’s needed to get those right.
 5. Fix anything needed to get the machine useful
 

@@ -11,6 +11,10 @@
  * Licence: GPL
  * 
  * See: https://github.com/RepRapLtd/Oxygen-concentrator
+ * 
+ * Version 2
+ * 9 April 2020
+ * 
  */
 
 // We need to save the parameters for when we reboot.
@@ -31,14 +35,15 @@ const char* eTag = "uAuAuA";
 
 // Solenoid valve control pins: [0] - left; [1] - right
 
-const int zeoliteIn[2] = {2, 5};
-const int zeoliteOut[2] = {3, 6};
-const int airVent[2] = {4, 7};
+const int feedIn[2] = {2, 6};
+const int purgeIn[2] = {3, 7};
+const int o2Out[2] = {4, 8};
+const int purgeOut[2] = {5, 9};
 
 // O2 level sensor pins
 
-const int o2LevelLow = 8;
-const int o2LevelHigh = 9;
+const int o2LevelLow = 11;
+const int o2LevelHigh = 12;
 
 // Timings (in ms) and other variables
 
@@ -48,14 +53,14 @@ long valveOpenTime = VOT;
 #define VCT 100
 long valveCloseTime = VCT;
 
-#define ZIT 1000
-long zeoliteInTime = ZIT;
+#define FIT 1000
+long feedInTime = FIT;
 
 #define ZHT 3000
 long zeoliteHoldTime = ZHT;
 
-#define ZOT 500
-long zeoliteOutTime = ZOT;
+#define OOT 500
+long o2OutTime = OOT;
 
 #define PT 1000
 long purgeTime = PT;
@@ -112,9 +117,9 @@ void SaveToEeprom()
   
   ptr = EepromWriteLong(ptr, valveOpenTime);
   ptr = EepromWriteLong(ptr, valveCloseTime);
-  ptr = EepromWriteLong(ptr, zeoliteInTime);
+  ptr = EepromWriteLong(ptr, feedInTime);
   ptr = EepromWriteLong(ptr, zeoliteHoldTime);
-  ptr = EepromWriteLong(ptr, zeoliteOutTime);
+  ptr = EepromWriteLong(ptr, o2OutTime);
   ptr = EepromWriteLong(ptr, purgeTime);
   ptr = EepromWriteLong(ptr, cyclesToFull);
 }
@@ -128,9 +133,9 @@ void LoadDefaults()
     
   valveOpenTime = VOT;
   valveCloseTime = VCT;
-  zeoliteInTime = ZIT;
+  feedInTime = FIT;
   zeoliteHoldTime = ZHT;
-  zeoliteOutTime = ZOT;
+  o2OutTime = OOT;
   purgeTime = PT;
   cyclesToFull = CTF;
   SaveToEeprom();
@@ -158,9 +163,9 @@ void LoadDataFromEepromOrSetDefaults()
   
   ptr = EepromReadLong(ptr, valveOpenTime);
   ptr = EepromReadLong(ptr, valveCloseTime);
-  ptr = EepromReadLong(ptr, zeoliteInTime);
+  ptr = EepromReadLong(ptr, feedInTime);
   ptr = EepromReadLong(ptr, zeoliteHoldTime);
-  ptr = EepromReadLong(ptr, zeoliteOutTime);
+  ptr = EepromReadLong(ptr, o2OutTime);
   ptr = EepromReadLong(ptr, purgeTime);
   ptr = EepromReadLong(ptr, cyclesToFull); 
 }
@@ -175,11 +180,11 @@ void Help()
   Serial.print(") - o\n Valve close time (");
   Serial.print(valveCloseTime);
   Serial.print(") - c\n Zeolite in time (");
-  Serial.print(zeoliteInTime);
+  Serial.print(feedInTime);
   Serial.print(") - i\n Zeolite hold time (");
   Serial.print(zeoliteHoldTime);
   Serial.print(") - h\n Zeolite exit time (");
-  Serial.print(zeoliteOutTime);
+  Serial.print(o2OutTime);
   Serial.print(") - e\n Purge time (");
   Serial.print(purgeTime);
   Serial.print(") - p\n Cycles to full (");
@@ -217,7 +222,7 @@ void Command()
       break;
       
     case 'i':
-      zeoliteInTime = ReadInteger();
+      feedInTime = ReadInteger();
       break;
       
     case 'h':
@@ -225,7 +230,7 @@ void Command()
       break;
       
     case 'e':
-      zeoliteOutTime = ReadInteger();
+      o2OutTime = ReadInteger();
       break;
       
     case 'p':
@@ -275,9 +280,9 @@ void Control()
 
     for(int a = 0; a < 2; a++)
     {
-      digitalWrite(zeoliteIn[a], LOW);
-      digitalWrite(zeoliteOut[a], LOW);
-      digitalWrite(airVent[a], LOW);
+      digitalWrite(feedIn[a], LOW);
+      digitalWrite(o2Out[a], LOW);
+      digitalWrite(purgeOut[a], LOW);
     }
     delay(valveCloseTime);
     
@@ -293,9 +298,9 @@ void Control()
 
   // We are active; start by shutting all valves
 
-  digitalWrite(zeoliteIn[arm], LOW);
-  digitalWrite(zeoliteOut[arm], LOW);
-  digitalWrite(airVent[arm], LOW);
+  digitalWrite(feedIn[arm], LOW);
+  digitalWrite(o2Out[arm], LOW);
+  digitalWrite(purgeOut[arm], LOW);
   delay(valveCloseTime);
 
   // Let the compressed air into the chamber
@@ -303,16 +308,16 @@ void Control()
   if(debug)
     Serial.println("Air in.");
 
-  digitalWrite(zeoliteIn[arm], HIGH);  
+  digitalWrite(feedIn[arm], HIGH);  
   delay(valveOpenTime);
 
   // Wait for the air to fill the chamber
 
-  delay(zeoliteInTime);
+  delay(feedInTime);
 
   // Close the input valve
 
-  digitalWrite(zeoliteIn[arm], LOW);  
+  digitalWrite(feedIn[arm], LOW);  
   delay(valveCloseTime);
 
   // Wait for the zeolite to adsorb the N2
@@ -327,16 +332,16 @@ void Control()
   if(debug)
     Serial.println("Sending O2 to the output.");
     
-  digitalWrite(zeoliteOut[arm], HIGH);
+  digitalWrite(o2Out[arm], HIGH);
   delay(valveOpenTime);
 
   // Wait for it to get there
 
-  delay(zeoliteOutTime);
+  delay(o2OutTime);
 
   // Close the output valve
 
-  digitalWrite(zeoliteOut[arm], LOW);
+  digitalWrite(o2Out[arm], LOW);
   delay(valveCloseTime);
 
   // Open the purge valve and the compressed air to blow through
@@ -344,8 +349,8 @@ void Control()
   if(debug)
     Serial.println("Purge N2.");
 
-  digitalWrite(airVent[arm], HIGH);
-  digitalWrite(zeoliteIn[arm], HIGH); 
+  digitalWrite(purgeOut[arm], HIGH);
+  digitalWrite(feedIn[arm], HIGH); 
   delay(valveOpenTime);
 
   // Wait for the purge
@@ -354,7 +359,7 @@ void Control()
 
   // Close the input valve; leave the purge valve open
 
-  digitalWrite(zeoliteIn[arm], LOW);  
+  digitalWrite(feedIn[arm], LOW);  
   delay(valveCloseTime);
 
   // That was one cycle
@@ -376,12 +381,14 @@ void setup()
 
   for(arm = 0; arm < 2; arm++)
   {
-    pinMode(zeoliteIn[arm], OUTPUT);
-    pinMode(zeoliteOut[arm], OUTPUT);
-    pinMode(airVent[arm], OUTPUT);
-    digitalWrite(zeoliteIn[arm], LOW);
-    digitalWrite(zeoliteOut[arm], LOW);
-    digitalWrite(airVent[arm], LOW);
+    pinMode(feedIn[arm], OUTPUT);
+    pinMode(purgeIn[arm], OUTPUT);
+    pinMode(o2Out[arm], OUTPUT);
+    pinMode(purgeOut[arm], OUTPUT);
+    digitalWrite(feedIn[arm], LOW);
+    digitalWrite(purgeIn[arm], LOW);
+    digitalWrite(o2Out[arm], LOW);
+    digitalWrite(purgeOut[arm], LOW);
   }
 
   arm = 0;
