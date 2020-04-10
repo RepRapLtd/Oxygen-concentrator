@@ -21,7 +21,7 @@
 
 // ZeolitePath is one half of the Oxygen Concentrator - either the left or the right arm.
 
-ZeolitePath::ZeolitePath(int fi, int pi, int oo, int po)
+ZeolitePath::ZeolitePath(const int fi, const int pi, const int oo, const int po, char* n)
 {  
   feedIn = fi;
   pinMode(feedIn, OUTPUT);
@@ -49,6 +49,10 @@ ZeolitePath::ZeolitePath(int fi, int pi, int oo, int po)
   lastTime = millis();
   interval = 0;
   o2Requested = false;
+
+// For messages etc.
+
+    name = n;
 }
 
 // Called in the main loop to run the valve sequence.  This should neither call delay()
@@ -123,6 +127,12 @@ void ZeolitePath::StartFeed()
 
   state = o2Feed;
   interval = o2FeedTime;
+
+  if(debug)
+  {
+    Serial.print(name);
+    Serial.println(" has started delivering O2.");
+  }
 }
 
 // Switch from O2 flow to purging
@@ -148,12 +158,29 @@ void ZeolitePath::SwitchToPurge()
 
   if(O2Demanded())
     otherPath->StartFeed();
+
+  if(debug)
+  {
+    Serial.print(name);
+    Serial.println(" has started purging.");
+  }
 }
 
 // Finish purging
     
 void ZeolitePath::EndPurge()
 {
+  if(debug)
+  {
+    Serial.print(name);
+    Serial.println(" has finished purging.");
+  }
+  
+  // Make sure the purging valves are closed.
+  
+  digitalWrite(purgeIn, LOW);
+  digitalWrite(purgeOut, LOW);
+
   // Is there an O2 request waiting?
 
   if(o2Requested)
@@ -165,12 +192,7 @@ void ZeolitePath::EndPurge()
     return;
   }
   
-  // No. Make sure the purging valves are closed.
-  
-  digitalWrite(purgeIn, LOW);
-  digitalWrite(purgeOut, LOW);
-  
-  // Set the state and the time to shut down
+  // No. Set the state and the time to shut down
   // If the other path requests us to start in the
   // mean time we never actually
   // shut down, but switch back to feeding O2.
@@ -188,5 +210,10 @@ void ZeolitePath::ShutDown()
   digitalWrite(feedIn, LOW);
   digitalWrite(o2Out, LOW);
   state = idle;
-  interval = 0;  
+  interval = 0;
+  if(debug)
+  {
+    Serial.print(name);
+    Serial.println(" is now idle.");
+  }  
 }

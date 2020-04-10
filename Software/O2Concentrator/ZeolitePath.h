@@ -31,7 +31,7 @@ class ZeolitePath
 {
   public:
 
-    ZeolitePath(int fi, int pi, int oo, int po);
+    ZeolitePath(const int fi, const int pi, const int oo, const int po, char* n);
 
     // Tell this path about the opposite path in the machine
     
@@ -42,12 +42,15 @@ class ZeolitePath
     
     void Spin();
 
+    // Are we busy?
 
-  private:
+    bool Inactive();
 
     // Start the O2 flow from this path
     
     void StartFeed();
+
+  private:
 
     // Switch from O2 flow to purging
     
@@ -85,6 +88,10 @@ class ZeolitePath
 // Flag so we know a request for O2 is waiting
 
     bool o2Requested;
+
+// For messages etc.
+
+    char* name;
   
 };
 
@@ -92,5 +99,6 @@ class ZeolitePath
     
 inline void ZeolitePath::SetOtherPath(ZeolitePath* op) { otherPath = op; } 
 
+inline bool ZeolitePath::Inactive() { return ( (state == idle) || (state == shuttingDown) ); }
 
 #endif

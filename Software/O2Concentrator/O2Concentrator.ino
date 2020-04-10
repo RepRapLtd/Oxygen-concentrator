@@ -19,6 +19,11 @@
 
 #include "O2Concentrator.h"
 
+// The two arms of the machine
+
+ZeolitePath* left = new ZeolitePath(2, 3, 4, 5, "Left");
+ZeolitePath* right = new ZeolitePath(6, 7, 8, 9, "Right");
+
 // Print debugging information when true.
 
 const bool debug = true;
@@ -27,13 +32,6 @@ const bool debug = true;
 
 const char* eTag = "uAuAuA";
 
-// Solenoid valve control pins: [0] - left; [1] - right
-
-const int feedIn[2] = {2, 6};
-const int purgeIn[2] = {3, 7};
-const int o2Out[2] = {4, 8};
-const int purgeOut[2] = {5, 9};
-
 // O2 level sensor pins
 
 const int o2LevelLow = 11;
@@ -41,33 +39,14 @@ const int o2LevelHigh = 12;
 
 // Timings (in ms) and other variables
 
-o2FeedTime
-purgingTime
-shuttingDownTime
+#define FEED_T 30
+long o2FeedTime = FEED_T;
 
-#define VOT 100
-long valveOpenTime = VOT;
+#define PURGE_T 30
+long purgingTime = PURGE_T;
 
-#define VCT 100
-long valveCloseTime = VCT;
-
-#define FIT 1000
-long feedInTime = FIT;
-
-#define ZHT 3000
-long zeoliteHoldTime = ZHT;
-
-#define OOT 500
-long o2OutTime = OOT;
-
-#define PT 1000
-long purgeTime = PT;
-
-#define CTF 1
-long cyclesToFull = CTF;
-
-long cycleCount = cyclesToFull + 1;
-int arm = 0;
+#define SHUT_T 1000;
+long shuttingDownTime = SHUT_T;
 
 // Read and write longs into EEPROM, 
 // returning an opdated pointer in each case.
@@ -113,13 +92,9 @@ void SaveToEeprom()
       ptr++;
   }
   
-  ptr = EepromWriteLong(ptr, valveOpenTime);
-  ptr = EepromWriteLong(ptr, valveCloseTime);
-  ptr = EepromWriteLong(ptr, feedInTime);
-  ptr = EepromWriteLong(ptr, zeoliteHoldTime);
-  ptr = EepromWriteLong(ptr, o2OutTime);
-  ptr = EepromWriteLong(ptr, purgeTime);
-  ptr = EepromWriteLong(ptr, cyclesToFull);
+  ptr = EepromWriteLong(ptr, o2FeedTime);
+  ptr = EepromWriteLong(ptr, purgingTime);
+  ptr = EepromWriteLong(ptr, shuttingDownTime);
 }
 
 // Load the default values.
@@ -129,13 +104,9 @@ void LoadDefaults()
   if(debug)
     Serial.println("Loading default variables.");
     
-  valveOpenTime = VOT;
-  valveCloseTime = VCT;
-  feedInTime = FIT;
-  zeoliteHoldTime = ZHT;
-  o2OutTime = OOT;
-  purgeTime = PT;
-  cyclesToFull = CTF;
+  o2FeedTime = FEED_T;
+  purgingTime = PURGE_T;
+  shuttingDownTime = SHUT_T;
   SaveToEeprom();
 }
 
@@ -159,13 +130,9 @@ void LoadDataFromEepromOrSetDefaults()
   if(debug)
     Serial.println("Loading variables from EEPROM.");
   
-  ptr = EepromReadLong(ptr, valveOpenTime);
-  ptr = EepromReadLong(ptr, valveCloseTime);
-  ptr = EepromReadLong(ptr, feedInTime);
-  ptr = EepromReadLong(ptr, zeoliteHoldTime);
-  ptr = EepromReadLong(ptr, o2OutTime);
-  ptr = EepromReadLong(ptr, purgeTime);
-  ptr = EepromReadLong(ptr, cyclesToFull); 
+  ptr = EepromReadLong(ptr, o2FeedTime);
+  ptr = EepromReadLong(ptr, purgingTime);
+  ptr = EepromReadLong(ptr, shuttingDownTime);
 }
 
 
@@ -173,28 +140,27 @@ void Help()
 {
   Serial.println("\nConcentrator variables");
   Serial.println(" All times in milliseconds. Current values in brackets.");
-  Serial.print(" Valve open time (");  
-  Serial.print(valveOpenTime);
-  Serial.print(") - o\n Valve close time (");
-  Serial.print(valveCloseTime);
-  Serial.print(") - c\n Zeolite in time (");
-  Serial.print(feedInTime);
-  Serial.print(") - i\n Zeolite hold time (");
-  Serial.print(zeoliteHoldTime);
-  Serial.print(") - h\n Zeolite exit time (");
-  Serial.print(o2OutTime);
-  Serial.print(") - e\n Purge time (");
-  Serial.print(purgeTime);
-  Serial.print(") - p\n Cycles to full (");
-  Serial.print(cyclesToFull);
-  Serial.println(") - y");
-  Serial.println(" Load default values - d");
+  Serial.print(" Oxygen feed time (");  
+  Serial.print(o2FeedTime);
+  Serial.print(") - o\n Purging time (");
+  Serial.print(purgingTime);
+  Serial.print(") - p\n Shutting down delay (");
+  Serial.print(shuttingDownTime);
+  Serial.println(") - s\n Load default values - d");
   Serial.println(" Print this list - ?\n");
 }
 
 long ReadInteger()
 {
   return (long)Serial.parseInt(); 
+}
+
+
+// True when the machine needs to produce O2.
+
+bool O2Demanded()
+{
+  return !digitalRead(o2LevelLow);
 }
 
 // Allow the user to change values.
@@ -212,31 +178,15 @@ void Command()
   switch(c)
   {
     case 'o':
-      valveOpenTime = ReadInteger();
+      o2FeedTime = ReadInteger();
       break;
 
-    case 'c':
-      valveCloseTime = ReadInteger();
-      break;
-      
-    case 'i':
-      feedInTime = ReadInteger();
-      break;
-      
-    case 'h':
-      zeoliteHoldTime = ReadInteger();
-      break;
-      
-    case 'e':
-      o2OutTime = ReadInteger();
-      break;
-      
     case 'p':
-      purgeTime = ReadInteger();
+      purgingTime = ReadInteger();
       break;
       
-    case 'y':
-      cyclesToFull = ReadInteger();
+    case 's':
+      shuttingDownTime = ReadInteger();
       break;
 
     case 'd':
@@ -258,152 +208,38 @@ void Command()
 
 void Control()
 {
-  // Are we inactive?
-  
-  if(cycleCount >= cyclesToFull)
-  {
-    
-    // Yes, inactive; do we need to become active?
-    
-    if(!digitalRead(o2LevelLow))
-    {
-      // Yes - resetting the cycle count will automatically make that happen.
-      
-      cycleCount = 0;
-      return;
-    }
+  // Do we need to do anything?
 
-    // Inactive and not needed. Make sure all valves are closed (not needed 
-    // for function, but reduces current consumption).
-
-    for(int a = 0; a < 2; a++)
-    {
-      digitalWrite(feedIn[a], LOW);
-      digitalWrite(o2Out[a], LOW);
-      digitalWrite(purgeOut[a], LOW);
-    }
-    delay(valveCloseTime);
-    
+  if(!O2Demanded())
     return;
-  }
 
-  if(debug)
-  {
-    Serial.print("Concentrator is active. Shutting valves on ");
-    Serial.print(arm);
-    Serial.println(" side.");
-  }
+  // Yes; if both sides are inactive turn one on.
+  // (If at least one is active the machine is already working.)
 
-  // We are active; start by shutting all valves
-
-  digitalWrite(feedIn[arm], LOW);
-  digitalWrite(o2Out[arm], LOW);
-  digitalWrite(purgeOut[arm], LOW);
-  delay(valveCloseTime);
-
-  // Let the compressed air into the chamber
-
-  if(debug)
-    Serial.println("Air in.");
-
-  digitalWrite(feedIn[arm], HIGH);  
-  delay(valveOpenTime);
-
-  // Wait for the air to fill the chamber
-
-  delay(feedInTime);
-
-  // Close the input valve
-
-  digitalWrite(feedIn[arm], LOW);  
-  delay(valveCloseTime);
-
-  // Wait for the zeolite to adsorb the N2
-  
-  if(debug)
-    Serial.println("Adsorbing N2.");
-    
-  delay(zeoliteHoldTime);
-
-  // Let the O2 go to the output
-
-  if(debug)
-    Serial.println("Sending O2 to the output.");
-    
-  digitalWrite(o2Out[arm], HIGH);
-  delay(valveOpenTime);
-
-  // Wait for it to get there
-
-  delay(o2OutTime);
-
-  // Close the output valve
-
-  digitalWrite(o2Out[arm], LOW);
-  delay(valveCloseTime);
-
-  // Open the purge valve and the compressed air to blow through
-
-  if(debug)
-    Serial.println("Purge N2.");
-
-  digitalWrite(purgeOut[arm], HIGH);
-  digitalWrite(feedIn[arm], HIGH); 
-  delay(valveOpenTime);
-
-  // Wait for the purge
-
-  delay(purgeTime);
-
-  // Close the input valve; leave the purge valve open
-
-  digitalWrite(feedIn[arm], LOW);  
-  delay(valveCloseTime);
-
-  // That was one cycle
-
-  if(debug)
-    Serial.println("Cycle complete.\n");
-  
-  cycleCount++;
-
-  // Swap to the other arm for the next cycle
-  
-  arm = 1 - arm;
+  if(left->Inactive() && right->Inactive())
+    left->StartFeed();
 }
 
 
 void setup() 
 {
-// Solenoid Valve control pins
 
-  for(arm = 0; arm < 2; arm++)
-  {
-    pinMode(feedIn[arm], OUTPUT);
-    pinMode(purgeIn[arm], OUTPUT);
-    pinMode(o2Out[arm], OUTPUT);
-    pinMode(purgeOut[arm], OUTPUT);
-    digitalWrite(feedIn[arm], LOW);
-    digitalWrite(purgeIn[arm], LOW);
-    digitalWrite(o2Out[arm], LOW);
-    digitalWrite(purgeOut[arm], LOW);
-  }
-
-  arm = 0;
-
-// O2 level sensor pins
+  // O2 level sensor pins
 
   pinMode(o2LevelLow, INPUT_PULLUP);
   pinMode(o2LevelHigh, INPUT_PULLUP);
 
-  Serial.begin(BAUD);
+  // Tell each side about the other
+  
+  left->SetOtherPath(right);
+  right->SetOtherPath(left);
 
+  Serial.begin(BAUD);
   Serial.println("RepRap Ltd Oxygen Concentrator Starting");
  
   LoadDataFromEepromOrSetDefaults();
 
   Help();
-
 }
 
 void loop()

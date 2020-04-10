@@ -29,8 +29,16 @@
 
 #include "ZeolitePath.h"
 
+bool O2Demanded();
+
 // Serial comms speed
 
 #define BAUD 9600
+
+extern const bool debug;
+extern long o2FeedTime;
+extern long purgingTime;
+extern long shuttingDownTime;
+
 
 #endif
