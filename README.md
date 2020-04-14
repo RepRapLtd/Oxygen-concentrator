@@ -67,9 +67,9 @@ Version 2 is neither final nor prototyped yet, but there is nothing to stop you 
 
    spreadsheet of materials we used to build our prototype
 
-2. Documents
+2. Useful-information
 
-   Useful scientific papers and other materials
+   Useful scientific papers and other materials, suggestions from contributors etc.
 
 3. Electronics
 
