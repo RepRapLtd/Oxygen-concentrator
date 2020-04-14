@@ -105,13 +105,17 @@ void ZeolitePath::Spin()
 void ZeolitePath::StartFeed()
 {
 
-  // If we are purging just set the O2 request flag and return.
+  // If we are busy just set the O2 request flag and return.
 
-  if(state == purging)
+  if(!Inactive())
   {
     o2Requested = true;
     return;
   }
+
+  // Make sure the flag is reset.
+
+  o2Requested = false;
   
   // Make sure the purging valves are closed.
   
@@ -181,24 +185,22 @@ void ZeolitePath::EndPurge()
   digitalWrite(purgeIn, LOW);
   digitalWrite(purgeOut, LOW);
 
-  // Is there an O2 request waiting?
-
-  if(o2Requested)
-  {
-    // Yes - switch straight back to feed.
-    
-    o2Requested = false;
-    StartFeed();
-    return;
-  }
-  
-  // No. Set the state and the time to shut down
+  // Set the state and the time to shut down
   // If the other path requests us to start in the
   // mean time we never actually
   // shut down, but switch back to feeding O2.
 
   state = shuttingDown;
-  interval = shuttingDownTime;    
+  interval = shuttingDownTime;  
+
+  // Is there an O2 request waiting?
+
+  if(o2Requested)
+  {
+    // Yes - switch straight back to feed.
+
+    StartFeed();
+  }
 }
 
 // Shut down (i.e. close all valves)

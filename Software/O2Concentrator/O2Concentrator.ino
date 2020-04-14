@@ -136,6 +136,8 @@ void LoadDataFromEepromOrSetDefaults()
 }
 
 
+// Print prompts and timings to refresh the user's memory
+
 void Help()
 {
   Serial.println("\nConcentrator variables");
@@ -149,6 +151,8 @@ void Help()
   Serial.println(") - s\n Load default values - d");
   Serial.println(" Print this list - ?\n");
 }
+
+// Get an integer from what the user types
 
 long ReadInteger()
 {
@@ -208,7 +212,12 @@ void Command()
 
 void Control()
 {
-  // Do we need to do anything?
+  // Keep the left and right arms working
+  
+  left->Spin();
+  right->Spin();
+  
+  // Do we need to do anything else?
 
   if(!O2Demanded())
     return;

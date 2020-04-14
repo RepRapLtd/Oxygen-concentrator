@@ -21,7 +21,7 @@
 #ifndef O2CONCENTRATOR_H
 #define O2CONCENTRATOR_H
 
-#import <Arduino.h>
+#include <Arduino.h>
 
 // We need to save the parameters for when we reboot.
 
@@ -34,6 +34,8 @@ bool O2Demanded();
 // Serial comms speed
 
 #define BAUD 9600
+
+// Globals
 
 extern const bool debug;
 extern long o2FeedTime;
