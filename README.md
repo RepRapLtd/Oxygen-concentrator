@@ -2,17 +2,26 @@
 
 This is the [RepRap Ltd](https://reprapltd.com) repository for all the information, designs, and data for our open-source Oxygen Concentrator.
 
-The primary aim of this project is to get a working design out.  We hope that others will then use that as the basis for improvements and variations.  See the *How Can You Help* section below.  This repository now incorporates some ideas from comments to our original blog post about it.  A big **Thank You** to all who have made suggestions; please make more using the issue link above!
+## Status
+
+###Version2:
+
+Prototype flow diagram: finished.
+Prototype mechanical construction: ongoing.
+Prototype electronics: designed, made and tested.
+Prototype software: written and compiled, not yet tested.
 
 Version 1 of this (up to commit [422aa3](https://github.com/RepRapLtd/Oxygen-concentrator/commit/422aaa3da3306aa2c95ef35095159bc0f398108a)) didn't work because the air was not flowing through the zeolite in a smooth consistent manner under pressure.  So this is now work-in-progress on Version 2 (from commit [3a930c0](https://github.com/RepRapLtd/Oxygen-concentrator/commit/3a930c09b3ee5cdb08eb29aa33c5f615ee4f58ef)) which we hope will fix the problem.
 
 ## Introduction
 
-![Oxygen concentrator block diagram](Pix/o2-concentrator.png)
+The primary aim of this project is to get a working design out.  We hope that others will then use that as the basis for improvements and variations.  See the *How Can You Help* section below.  This repository now incorporates some ideas from comments to our original blog post about it.  A big **Thank You** to all who have made suggestions; please make more using the issue link above!
 
 With the World’s current problems caused by [covid-19](https://en.wikipedia.org/wiki/Coronavirus_disease_2019), it seemed to us that an open-source [oxygen concentrator](https://en.wikipedia.org/wiki/Oxygen_concentrator) would be a useful thing to have.  These are fairly simple devices that work by [pressure swing adsorbtion](https://en.wikipedia.org/wiki/Pressure_swing_adsorption#Rapid_PSA).  The block diagram for what we propose (Version 2) is shown above.
 
 ### How will it work?
+
+![Oxygen concentrator block diagram](Pix/o2-concentrator.png)
 
 We don't know if it will until we test it, of course.  But the plan is this:
 
