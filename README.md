@@ -4,7 +4,7 @@ This is the [RepRap Ltd](https://reprapltd.com) repository for all the informati
 
 ## Status
 
-### Version2 prototype:
+### Version 2 prototype:
 
 1. Flow diagram/design: finished.
 2. Mechanical construction: ongoing.
@@ -15,9 +15,9 @@ Version 1 of this (up to commit [422aa3](https://github.com/RepRapLtd/Oxygen-con
 
 ## Introduction
 
-The primary aim of this project is to get a working design out.  We hope that others will then use that as the basis for improvements and variations.  See the *How Can You Help* section below.  This repository now incorporates some ideas from comments to our original blog post about it.  A big **Thank You** to all who have made suggestions; please make more using the issue link above!
+With the World’s current problems caused by [covid-19](https://en.wikipedia.org/wiki/Coronavirus_disease_2019), it seemed to us that an open-source [oxygen concentrator](https://en.wikipedia.org/wiki/Oxygen_concentrator) would be a useful thing to have.  These are fairly simple devices that work by [pressure swing adsorbtion](https://en.wikipedia.org/wiki/Pressure_swing_adsorption#Rapid_PSA). 
 
-With the World’s current problems caused by [covid-19](https://en.wikipedia.org/wiki/Coronavirus_disease_2019), it seemed to us that an open-source [oxygen concentrator](https://en.wikipedia.org/wiki/Oxygen_concentrator) would be a useful thing to have.  These are fairly simple devices that work by [pressure swing adsorbtion](https://en.wikipedia.org/wiki/Pressure_swing_adsorption#Rapid_PSA).  The block diagram for what we propose (Version 2) is shown above.
+The primary aim of this project is to get a working design out.  We hope that others will then use that as the basis for improvements and variations.  See the *How Can You Help* section below.  This repository now incorporates some ideas from comments to our original blog post about it.  A big **Thank You** to all who have made suggestions; please make more using the issue link above!
 
 ### How will it work?
 
