@@ -49,7 +49,7 @@ long purgingTime = PURGE_T;
 long shuttingDownTime = SHUT_T;
 
 // Read and write longs into EEPROM, 
-// returning an opdated pointer in each case.
+// returning an updated pointer in each case.
 
 int EepromWriteLong(int ptr, long v)
 {
