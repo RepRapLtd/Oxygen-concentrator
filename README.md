@@ -108,6 +108,27 @@ Version 2 is neither final nor prototyped yet, but there is nothing to stop you 
 
 [![Control System Test](http://img.youtube.com/vi/y4nPhJDR1PU/0.jpg)](https://www.youtube.com/watch?v=y4nPhJDR1PU "Control System Test")
 
+## Useful links
+
+http://users.wpi.edu/~mpopovic/pages/OxygenConcentrator.html
+
+http://www.vurup.sk/wp-content/uploads/dlm_uploads/2017/07/pc_3_2013_javadi_221.pdf
+
+https://youtu.be/27lndEFP2DU
+
+https://youtu.be/GxclrM270gA
+
+https://github.com/oxycon/ProjectApollo
+
+https://youtu.be/jhrS0ttp-mU
+
+https://www.ou.edu/class/che-design/a-design/projects-2007/Oxygen%20Generator-Presentation.pdf
+
+https://www.who.int/medical_devices/publications/tech_specs_oxygen-concentrators/en/
+
+https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5575677/
+
+
 
 
 
