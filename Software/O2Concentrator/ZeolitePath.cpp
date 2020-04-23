@@ -90,7 +90,7 @@ void ZeolitePath::Spin()
      break;    
 
     default:
-      Serial.println("ERROR - dud state in ZeolitePath::Spin().");
+      Serial.println("\nERROR - dud state in ZeolitePath::Spin().");
       state = idle;
       interval = 0;
   }
@@ -110,7 +110,20 @@ void ZeolitePath::StartFeed()
   if(!Inactive())
   {
     o2Requested = true;
+    if(debug)
+    {
+      Serial.print(name);
+      Serial.print(" is busy and has an O2 request at t = ");
+      Serial.println(millis()/1000);
+    }    
     return;
+  }
+
+  if(debug)
+  {
+    Serial.print(name);
+    Serial.print(" has started delivering O2 at t = ");
+    Serial.println(millis()/1000);
   }
 
   // Make sure the flag is reset.
@@ -131,18 +144,18 @@ void ZeolitePath::StartFeed()
 
   state = o2Feed;
   interval = o2FeedTime;
-
-  if(debug)
-  {
-    Serial.print(name);
-    Serial.println(" has started delivering O2.");
-  }
 }
 
 // Switch from O2 flow to purging
     
 void ZeolitePath::SwitchToPurge()
 {
+  if(debug)
+  {
+    Serial.print(name);
+    Serial.print(" has started purging at t = ");
+    Serial.println(millis()/1000);
+  }
   // Make sure the O2 valves are closed.
   
   digitalWrite(feedIn, LOW);
@@ -162,12 +175,6 @@ void ZeolitePath::SwitchToPurge()
 
   if(O2Demanded())
     otherPath->StartFeed();
-
-  if(debug)
-  {
-    Serial.print(name);
-    Serial.println(" has started purging.");
-  }
 }
 
 // Finish purging
@@ -177,7 +184,8 @@ void ZeolitePath::EndPurge()
   if(debug)
   {
     Serial.print(name);
-    Serial.println(" has finished purging.");
+    Serial.print(" has finished purging at t = ");
+    Serial.println(millis()/1000);
   }
   
   // Make sure the purging valves are closed.
@@ -189,6 +197,7 @@ void ZeolitePath::EndPurge()
   // If the other path requests us to start in the
   // mean time we never actually
   // shut down, but switch back to feeding O2.
+  // state needs to be shuttingDown for this to work.
 
   state = shuttingDown;
   interval = shuttingDownTime;  
@@ -207,15 +216,16 @@ void ZeolitePath::EndPurge()
 
 void ZeolitePath::ShutDown()
 {
+  if(debug)
+  {
+    Serial.print(name);
+    Serial.print(" is now idle at t = ");
+    Serial.println(millis()/1000);
+  }  
   digitalWrite(purgeIn, LOW);
   digitalWrite(purgeOut, LOW);
   digitalWrite(feedIn, LOW);
   digitalWrite(o2Out, LOW);
   state = idle;
   interval = 0;
-  if(debug)
-  {
-    Serial.print(name);
-    Serial.println(" is now idle.");
-  }  
 }

@@ -39,10 +39,10 @@ const int o2LevelHigh = 12;
 
 // Timings (in ms) and other variables
 
-#define FEED_T 30
+#define FEED_T 30000
 long o2FeedTime = FEED_T;
 
-#define PURGE_T 30
+#define PURGE_T 30000
 long purgingTime = PURGE_T;
 
 #define SHUT_T 1000;
@@ -135,12 +135,59 @@ void LoadDataFromEepromOrSetDefaults()
   ptr = EepromReadLong(ptr, shuttingDownTime);
 }
 
+// Print deciseconds with a decimal point
+
+void PrintDeciSeconds(long d)
+{
+  long i = d/10;
+  Serial.print(i);
+  d = d - i*10;
+  Serial.print('.');
+  Serial.print(d);
+}
+
+// Print a state in words
+
+void PrintState(State s)
+{
+  switch(s)
+  {
+    case idle:
+      Serial.print("idle");
+      break;
+
+    case o2Feed:
+      Serial.print("feeding O2");
+      break;
+      
+    case purging:
+      Serial.print("purging");
+      break;
+
+    case shuttingDown:
+      Serial.print("shutting down");
+      break;    
+
+    default:
+      Serial.println("\nERROR - dud state in PrintState().");
+  }
+}
+
 
 // Print prompts and timings to refresh the user's memory
 
 void Help()
 {
-  Serial.println("\nConcentrator variables");
+  Serial.print("\nConcentrator state:\n ");
+  Serial.print(left->GetName());
+  Serial.print(" is ");
+  PrintState(left->GetState());
+  Serial.print(".\n ");
+  Serial.print(right->GetName());
+  Serial.print(" is ");
+  PrintState(right->GetState());
+  Serial.println(".");
+  Serial.println("Concentrator variables:");
   Serial.println(" All times in milliseconds. Current values in brackets.");
   Serial.print(" Oxygen feed time (");  
   Serial.print(o2FeedTime);

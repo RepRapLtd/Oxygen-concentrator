@@ -50,6 +50,14 @@ class ZeolitePath
     
     void StartFeed();
 
+    // Return the current state
+    
+    State GetState();
+
+    // Return the current name
+
+    char* GetName();
+
   private:
 
     // Switch from O2 flow to purging
@@ -100,5 +108,9 @@ class ZeolitePath
 inline void ZeolitePath::SetOtherPath(ZeolitePath* op) { otherPath = op; } 
 
 inline bool ZeolitePath::Inactive() { return ( (state == idle) || (state == shuttingDown) ); }
+
+inline State ZeolitePath::GetState() { return state; }
+
+inline char* ZeolitePath::GetName() { return name; }
 
 #endif

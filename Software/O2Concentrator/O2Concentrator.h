@@ -29,7 +29,13 @@
 
 #include "ZeolitePath.h"
 
+// True when O2 is needed
+
 bool O2Demanded();
+
+// Print deciseconds with a decimal point
+
+void PrintDeciSeconds(long d);
 
 // Serial comms speed
 
