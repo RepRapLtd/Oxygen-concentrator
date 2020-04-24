@@ -21,23 +21,21 @@
 
 // ZeolitePath is one half of the Oxygen Concentrator - either the left or the right arm.
 
-ZeolitePath::ZeolitePath(const int fi, const int pi, const int oo, const int po, char* n)
-{  
-  feedIn = fi;
-  pinMode(feedIn, OUTPUT);
-  digitalWrite(feedIn, LOW);
-  
-  purgeIn = pi;
-  pinMode(purgeIn, OUTPUT);
-  digitalWrite(purgeIn, LOW);
-  
-  o2Out = oo;
-  pinMode(o2Out, OUTPUT);
-  digitalWrite(o2Out, LOW);
-  
-  purgeOut = po;
-  pinMode(purgeOut, OUTPUT);
-  digitalWrite(purgeOut, LOW);
+// The constructor needs to know the valve pins and name
+    
+ZeolitePath(int pns[], char* n)
+{
+
+  for(int v = 0; v < N_VALVES - 1; v++)
+  {
+    pins[v] = pns[v];
+    pinMode(pins[v], OUTPUT);
+    digitalWrite(pins[v], LOW);
+  }
+
+  // For messages etc.
+
+  name = n;
 
 // The other half of the machine; not set yet
 
@@ -45,14 +43,44 @@ ZeolitePath::ZeolitePath(const int fi, const int pi, const int oo, const int po,
 
 // Timings and state
 
-  state = idle;
   lastTime = millis();
-  interval = 0;
-  o2Requested = false;
 
-// For messages etc.
+  active = false;
 
-    name = n;
+// What stage in the process this arm is at.
+
+  pointInSequence = 0;
+}
+
+
+
+// Set the valve sequence and timings
+    
+void ZeolitePath::SetSequenceAndTimes(int seq[], long tims[])
+{
+  for(int s = 0; s < N_VALVES - 1; s++)
+  {
+    sequence[s] = seq[s];
+    times[s] = tims[s]; 
+  }
+}
+
+
+// Start the sequence from this path
+    
+void ZeolitePath::void StartSequence()
+{
+  
+}
+
+
+void ZeolitePath::StepSequence()
+{
+  pointInSequence++;
+  switch(pointInSequence)
+  {
+     
+  }
 }
 
 // Called in the main loop to run the valve sequence.  This should neither call delay()
@@ -60,172 +88,11 @@ ZeolitePath::ZeolitePath(const int fi, const int pi, const int oo, const int po,
     
 void ZeolitePath::Spin()
 {
-  // Are we due to do anything?
-
-  unsigned long now = millis();
-
-  // Maybe. What?
-  
-  switch(state)
-  {
-    case idle:
-      return;
-
-    case o2Feed:
-      if(now - lastTime <= interval)
-        return;
-      SwitchToPurge();
-      break;
-      
-    case purging:
-      if(now - lastTime <= interval)
-        return;
-      EndPurge();
-      break;
-
-    case shuttingDown:
-     if(now - lastTime <= interval)
-        return;
-     ShutDown();
-     break;    
-
-    default:
-      Serial.println("\nERROR - dud state in ZeolitePath::Spin().");
-      state = idle;
-      interval = 0;
-  }
-
-  // State has changed
-  
-  lastTime = now; 
-}
-
-// Start the O2 flow from this path
-    
-void ZeolitePath::StartFeed()
-{
-
-  // If we are busy just set the O2 request flag and return.
-
-  if(!Inactive())
-  {
-    o2Requested = true;
-    if(debug)
-    {
-      Serial.print(name);
-      Serial.print(" is busy and has an O2 request at t = ");
-      Serial.println(millis()/1000);
-    }    
+  if(!Active())
     return;
-  }
 
-  if(debug)
-  {
-    Serial.print(name);
-    Serial.print(" has started delivering O2 at t = ");
-    Serial.println(millis()/1000);
-  }
+  if(millis() - lastTime <= times[pointInSequence])
+    return;
 
-  // Make sure the flag is reset.
-
-  o2Requested = false;
-  
-  // Make sure the purging valves are closed.
-  
-  digitalWrite(purgeIn, LOW);
-  digitalWrite(purgeOut, LOW);
-
-  // Open the air in and O2 out valves
-  
-  digitalWrite(feedIn, HIGH);
-  digitalWrite(o2Out, HIGH);
-
-  // Set the state and the time to feed O2
-
-  state = o2Feed;
-  interval = o2FeedTime;
-}
-
-// Switch from O2 flow to purging
-    
-void ZeolitePath::SwitchToPurge()
-{
-  if(debug)
-  {
-    Serial.print(name);
-    Serial.print(" has started purging at t = ");
-    Serial.println(millis()/1000);
-  }
-  // Make sure the O2 valves are closed.
-  
-  digitalWrite(feedIn, LOW);
-  digitalWrite(o2Out, LOW);
-
-  // Open the purging valves
-  
-  digitalWrite(purgeIn, HIGH);
-  digitalWrite(purgeOut, HIGH);
-
-  // Set the state and the time to purge
-
-  state = purging;
-  interval = purgingTime;
-
-  // Set the other path feeding O2 if there is demand.
-
-  if(O2Demanded())
-    otherPath->StartFeed();
-}
-
-// Finish purging
-    
-void ZeolitePath::EndPurge()
-{
-  if(debug)
-  {
-    Serial.print(name);
-    Serial.print(" has finished purging at t = ");
-    Serial.println(millis()/1000);
-  }
-  
-  // Make sure the purging valves are closed.
-  
-  digitalWrite(purgeIn, LOW);
-  digitalWrite(purgeOut, LOW);
-
-  // Set the state and the time to shut down
-  // If the other path requests us to start in the
-  // mean time we never actually
-  // shut down, but switch back to feeding O2.
-  // state needs to be shuttingDown for this to work.
-
-  state = shuttingDown;
-  interval = shuttingDownTime;  
-
-  // Is there an O2 request waiting?
-
-  if(o2Requested)
-  {
-    // Yes - switch straight back to feed.
-
-    StartFeed();
-  }
-}
-
-// Shut down (i.e. close all valves)
-
-void ZeolitePath::ShutDown()
-{
-  if(debug)
-  {
-    Serial.print(name);
-    Serial.print(" is now idle at t = ");
-    Serial.println(millis()/1000);
-  }  
-  digitalWrite(purgeIn, LOW);
-  digitalWrite(purgeOut, LOW);
-  digitalWrite(feedIn, LOW);
-  digitalWrite(o2Out, LOW);
-  state = idle;
-  interval = 0;
+  StepSequence();
 }

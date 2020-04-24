@@ -22,16 +22,29 @@
 #ifndef ZEOLITEPATH_H
 #define ZEOLITEPATH_H
 
+// Actions on the valves in one arm of the machine
 
-// The states the machine's arms can be in.
+#define N_VALVES 5
 
-enum State { idle, o2Feed, purging, shuttingDown };
+// The names of the valves. "start-other-arm" isn't a valve; it's
+// the point in one arm's sequence that it tells the other arm to start its sequence.
+// We also have an enum for this to make the code easier to read.
+
+char** valveNames = { "feed_in", "purge_in", "o2_out", "purge_out", "start_other_arm" };
+
+enum Valves { feed_in, purge_in, o2_out, purge_out, start_other_arm }; 
 
 class ZeolitePath
 {
   public:
 
-    ZeolitePath(const int fi, const int pi, const int oo, const int po, char* n);
+    // The constructor needs to know the valve pins and name
+    
+    ZeolitePath(int pns[], char* n);
+
+    // Set the valve sequence and timings
+    
+    SetSequenceAndTimes(int seq[], long tims[]);
 
     // Tell this path about the opposite path in the machine
     
@@ -44,73 +57,90 @@ class ZeolitePath
 
     // Are we busy?
 
-    bool Inactive();
+    bool Active();
 
-    // Start the O2 flow from this path
+    // Start the sequence from this path
     
-    void StartFeed();
+    void StartSequence();
 
-    // Return the current state
+    // Return the current activity
     
-    State GetState();
+    int PointInSequence();
 
     // Return the current name
 
     char* GetName();
 
+    // Return the current sequence
+
+    int[] GetSequence();
+
+    // Return the current timings
+
+    long[] GetTimes();
+
   private:
 
-    // Switch from O2 flow to purging
+    // One step forward in the sequence
     
-    void SwitchToPurge();
+    void StepSequence();
 
-    // Finish purging
+    // The Arduino pins that drive the solenoid valves
+
+    int pins[N_VALVES];
+
+    // The sequence
+        
+    int sequence[N_VALVES];
+
+    // The timings
     
-    void EndPurge();
+    int times[N_VALVES];
 
-    // Shut down (i.e. close all valves)
-
-    void ShutDown();
-
-// The Arduino pins that drive the solenoid valves
-
-    int feedIn;
-    int purgeIn;
-    int o2Out;
-    int purgeOut;
-
-// What stage in the process this arm is at.
-
-    State state;
-
-// The other half of the machine
+    // The other half of the machine
 
     ZeolitePath* otherPath;
 
-// Timing. lastTime is the last time something happened.  interval is how long until
-// the next thing needs to happen.
+    // Timing. lastTime is the time this bit of the sequence started. 
 
     unsigned long lastTime;
-    unsigned long interval;
 
-// Flag so we know a request for O2 is waiting
-
-    bool o2Requested;
-
-// For messages etc.
+    // For messages etc.
 
     char* name;
+
+        // Are we active?
+
+    bool active;
+
+    // What stage in the process this arm is at.
+
+    int pointInSequence;
   
 };
 
 // Tell this path about the opposite path in the machine
     
-inline void ZeolitePath::SetOtherPath(ZeolitePath* op) { otherPath = op; } 
+inline void ZeolitePath::SetOtherPath(ZeolitePath* op) { otherPath = op; }
 
-inline bool ZeolitePath::Inactive() { return ( (state == idle) || (state == shuttingDown) ); }
+// Busy?
 
-inline State ZeolitePath::GetState() { return state; }
+inline bool ZeolitePath::Active() { return active; }
+
+// What are we doing?
+
+inline int ZeolitePath::PointInSequence() { return pointInSequence; }
+
+// Who?
 
 inline char* ZeolitePath::GetName() { return name; }
+
+// The whole sequence
+
+inline int[] ZeolitePath::GetSequence() { return sequence; }
+
+// All the timings
+
+inline long[] ZeolitePath::GetTimes() { return times; }
 
 #endif
