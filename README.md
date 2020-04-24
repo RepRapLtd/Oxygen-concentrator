@@ -2,14 +2,14 @@
 
 This is the [RepRap Ltd](https://reprapltd.com) repository for all the information, designs, and data for our open-source Oxygen Concentrator.
 
-## Status
+## Status (repository master branch)
 
 ### Version 2 prototype:
 
 1. Flow diagram/design: finished.
 2. Mechanical construction: ongoing.
 3. Electronics: designed, made and tested.
-4. Software: written and compiled, not yet tested.
+4. Software: written, compiled, and tested.
 
 Version 1 of this (up to commit [422aa3](https://github.com/RepRapLtd/Oxygen-concentrator/commit/422aaa3da3306aa2c95ef35095159bc0f398108a)) didn't work because the air was not flowing through the zeolite in a smooth consistent manner under pressure.  So this is now work-in-progress on Version 2 (from commit [3a930c0](https://github.com/RepRapLtd/Oxygen-concentrator/commit/3a930c09b3ee5cdb08eb29aa33c5f615ee4f58ef)) which we hope will fix the problem.
 
