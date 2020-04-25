@@ -22,17 +22,11 @@
 #ifndef ZEOLITEPATH_H
 #define ZEOLITEPATH_H
 
-// Actions on the valves in one arm of the machine
-
-#define N_VALVES 5
-
 // The names of the valves. "start-other-arm" isn't a valve; it's
 // the point in one arm's sequence that it tells the other arm to start its sequence.
 // We also have an enum for this to make the code easier to read.
 
 char** valveNames = { "feed_in", "purge_in", "o2_out", "purge_out", "start_other_arm" };
-
-enum Valves { feed_in, purge_in, o2_out, purge_out, start_other_arm }; 
 
 class ZeolitePath
 {
@@ -55,11 +49,7 @@ class ZeolitePath
     
     void Spin();
 
-    // Are we busy?
-
-    bool Active();
-
-    // Start the sequence from this path
+    // Start the sequence for this path
     
     void StartSequence();
 
@@ -79,23 +69,39 @@ class ZeolitePath
 
     long[] GetTimes();
 
+    // Are we busy?
+
+    bool Active();
+
+    // Print the current sequence in human-understandable form
+
+    void PrintSequence();
+
+    // Print the valve names and indices
+
+    void PrintValves();
+
   private:
 
     // One step forward in the sequence
     
     void StepSequence();
 
+    // Do this step in the sequence
+
+    void DoThisStep();
+
     // The Arduino pins that drive the solenoid valves
 
-    int pins[N_VALVES];
+    int pins[numberOfValves];
 
     // The sequence
         
-    int sequence[N_VALVES];
+    int sequence[sequenceSteps];
 
     // The timings
     
-    int times[N_VALVES];
+    int times[sequenceSteps];
 
     // The other half of the machine
 

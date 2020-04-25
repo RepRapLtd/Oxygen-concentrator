@@ -19,14 +19,25 @@
 
 #include "O2Concentrator.h"
 
-// The two arms of the machine
+// The two arms of the machine; output pins and names
 
-ZeolitePath* left = new ZeolitePath(2, 3, 4, 5, "Left");
-ZeolitePath* right = new ZeolitePath(6, 7, 8, 9, "Right");
+const int lPins[numberOfValves] = { 2, 3, 4, 5 };
+const int rPins[numberOfValves] = { 6, 7, 8, 9 };
+ZeolitePath* left = new ZeolitePath(lPins, "Left");
+ZeolitePath* right = new ZeolitePath(rPins, "Right");
+
+// The default sequence
+
+const int defaultSequence[sequenceSteps] = {};
+const long defaultTimes[sequenceSteps] = {};
 
 // Print debugging information when true.
 
-const bool debug = true;
+bool debug = true;
+
+// Which side to start up
+
+bool leftStart = true;
 
 // Tag string to see if EEPROM contents are valid
 
@@ -36,17 +47,6 @@ const char* eTag = "uAuAuA";
 
 const int o2LevelLow = 11;
 const int o2LevelHigh = 12;
-
-// Timings (in ms) and other variables
-
-#define FEED_T 30000
-long o2FeedTime = FEED_T;
-
-#define PURGE_T 30000
-long purgingTime = PURGE_T;
-
-#define SHUT_T 1000;
-long shuttingDownTime = SHUT_T;
 
 // Read and write longs into EEPROM, 
 // returning an updated pointer in each case.
@@ -80,10 +80,14 @@ int EepromReadLong(int ptr, long& v)
 
 // Save all the settings to the EEPROM, starting with the validation tag string
 
-void SaveToEeprom()
+void SaveToEeprom(ZeolitePath* zp)
 {
   if(debug)
-    Serial.println("Saving variables to EEPROM.");
+  {
+    Serial.print("Saving ");
+    Serial.print(zp->Name());
+    Serial.println(" sequence to EEPROM.");
+  }
     
   int ptr = 0;
   while(eTag[ptr])
@@ -91,37 +95,41 @@ void SaveToEeprom()
       EEPROM.write(ptr, eTag[ptr]);
       ptr++;
   }
-  
-  ptr = EepromWriteLong(ptr, o2FeedTime);
-  ptr = EepromWriteLong(ptr, purgingTime);
-  ptr = EepromWriteLong(ptr, shuttingDownTime);
+
+  int sequence[] = zp->GetSequence();
+  long times[] = zp->GetTimes();
+
+  for(int ss = 0; ss < sequenceSteps; ss++)
+  {
+    ptr = EepromWriteLong(ptr, (long)sequence[ss]);
+    ptr = EepromWriteLong(ptr, times[ss]);
+  }
 }
 
 // Load the default values.
 
-void LoadDefaults()
+void LoadDefaults(ZeolitePath* zp1, ZeolitePath* zp2)
 {
   if(debug)
     Serial.println("Loading default variables.");
-    
-  o2FeedTime = FEED_T;
-  purgingTime = PURGE_T;
-  shuttingDownTime = SHUT_T;
-  SaveToEeprom();
+
+  zp1->SetSequenceAndTimes(defaultSequence, defaultTimes);
+  zp2->SetSequenceAndTimes(defaultSequence, defaultTimes); 
+  SaveToEeprom(zp1);
 }
 
 
 // Check if the EEPROM starts with a valid tag string.  If not, load the default data.
 // If it does, load from the EEPROM.
 
-void LoadDataFromEepromOrSetDefaults()
+void LoadDataFromEepromOrSetDefaults(ZeolitePath* zp1, ZeolitePath* zp2)
 {
   int ptr = 0;
   while(eTag[ptr])
   {
     if(EEPROM.read(ptr) != eTag[ptr])
     {
-      LoadDefaults();
+      LoadDefaults(zp1, zp2);
       return;
     }
     ptr++;
@@ -129,10 +137,20 @@ void LoadDataFromEepromOrSetDefaults()
 
   if(debug)
     Serial.println("Loading variables from EEPROM.");
-  
-  ptr = EepromReadLong(ptr, o2FeedTime);
-  ptr = EepromReadLong(ptr, purgingTime);
-  ptr = EepromReadLong(ptr, shuttingDownTime);
+
+  int sequence[sequenceSteps];
+  long s;
+  long times[sequenceSteps];  
+
+  for(int ss = 0; ss < sequenceSteps; ss++)
+  {
+    ptr = EepromReadLong(ptr, s);
+    sequence[ss] = (int)s;
+    ptr = EepromReadLong(ptr, times[ss]);
+  }
+
+  zp1->SetSequenceAndTimes(sequence, times);
+  zp2->SetSequenceAndTimes(sequence, times);  
 }
 
 // Print deciseconds with a decimal point
@@ -146,35 +164,14 @@ void PrintDeciSeconds(long d)
   Serial.print(d);
 }
 
-// Print a state in words
+// Print the state of the machine
 
-void PrintState(State s)
+void PrintState()
 {
-  switch(s)
-  {
-    case idle:
-      Serial.print("idle");
-      break;
-
-    case o2Feed:
-      Serial.print("feeding O2");
-      break;
-      
-    case purging:
-      Serial.print("purging");
-      break;
-
-    case shuttingDown:
-      Serial.print("shutting down");
-      break;    
-
-    default:
-      Serial.println("\nERROR - dud state in PrintState().");
-  }
+  
 }
 
-
-// Print prompts and timings to refresh the user's memory
+// Print prompts to refresh the user's memory
 
 void Help()
 {
@@ -269,11 +266,18 @@ void Control()
   if(!O2Demanded())
     return;
 
-  // Yes; if both sides are inactive turn one on.
+  // Yes; if either side it active return.
   // (If at least one is active the machine is already working.)
 
-  if(left->Inactive() && right->Inactive())
-    left->StartFeed();
+  if(left->Active() || right->Active())
+    return;
+
+  if(leftStart)
+    left->StartSequence();
+  else
+    right->StartSequence();
+
+  leftStart = !leftStart;
 }
 
 

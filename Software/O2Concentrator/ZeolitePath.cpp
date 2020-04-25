@@ -21,16 +21,24 @@
 
 // ZeolitePath is one half of the Oxygen Concentrator - either the left or the right arm.
 
-// The constructor needs to know the valve pins and name
+// Number of valves in one arm of the machine
+
+const int numberOfValves = 4;
+
+// Each valve has an on and an off, plus we have to tell the other arm to start
+
+const int sequenceSteps = 2*numberOfValves + 1;
+
+// The constructor needs to know the valve pins and its name
     
 ZeolitePath(int pns[], char* n)
 {
 
-  for(int v = 0; v < N_VALVES - 1; v++)
+  for(int valve = 0; valve < numberOfValves; valve++)
   {
-    pins[v] = pns[v];
-    pinMode(pins[v], OUTPUT);
-    digitalWrite(pins[v], LOW);
+    pins[valve] = pns[valve];
+    pinMode(pins[valve], OUTPUT);
+    digitalWrite(pins[valve], LOW);
   }
 
   // For messages etc.
@@ -58,29 +66,66 @@ ZeolitePath(int pns[], char* n)
     
 void ZeolitePath::SetSequenceAndTimes(int seq[], long tims[])
 {
-  for(int s = 0; s < N_VALVES - 1; s++)
+  for(int ss = 0; ss < sequenceSteps; ss++)
   {
-    sequence[s] = seq[s];
-    times[s] = tims[s]; 
+    sequence[ss] = seq[ss];
+    times[ss] = tims[ss]; 
   }
 }
 
+// Execute one step in the sequence.
 
-// Start the sequence from this path
-    
-void ZeolitePath::void StartSequence()
+void ZeolitePath::DoThisStep()
 {
+  bool open = true;
+  int valve = sequence[pointInSequence];
+  if(valve < 0)
+  {
+    open = false;
+    valve = abs(valve);
+  }
+
+  // Valves cannot have a 0 index; pins[] starts at [0]
+    
+  valve--;
+
+  lastTime = millis();
+
+  // Trigger the other arm?
   
+  if(valve == numberOfValves)
+  {
+    otherPath->StartSequence();
+    return;
+  }
+
+  digitalWrite(pins[valve], open);  
 }
 
+
+// Start the sequence for this path
+    
+void ZeolitePath::StartSequence()
+{
+  pointInSequence = 0;
+  lastTime = millis();
+  if(O2Demanded())
+  {
+    active = true;
+    DoThisStep();
+  } else
+    active = false;  
+}
+
+// Go to the next step
 
 void ZeolitePath::StepSequence()
 {
   pointInSequence++;
-  switch(pointInSequence)
-  {
-     
-  }
+  if(pointInSequence >= sequenceSteps)
+    StartSequence();
+  else
+    DoThisStep();
 }
 
 // Called in the main loop to run the valve sequence.  This should neither call delay()
@@ -95,4 +140,56 @@ void ZeolitePath::Spin()
     return;
 
   StepSequence();
+}
+
+// Print the current sequence in human-understandable form
+
+void ZeolitePath::PrintSequence()
+{
+  bool open;
+  Serial.print("\nThe ");
+  Serial.print(name);
+  Serial.println(" sequence is: ");
+  for(int ss = 0; ss < sequenceSteps; ss++)
+  {
+    Serial.print(" ");
+    Serial.print(ss);
+    Serial.print(": ");
+    int valve = sequence[ss];
+    loing t = times[ss];
+    open = true;
+    if(valve < 0)
+    {
+      open = false;
+      valve = abs(valve);
+    }
+    valve--;
+    Serial.print(valveNames[valve]);
+    if(valve != numberOfValves)
+    {
+       if(open)
+        Serial.print(" opens");
+       else
+        Serial.print(" closes");
+       Serial.print(" < wait: ");
+       Serial.print(t);
+       Serial.println("ms >");
+    }
+  }
+  Serial.println();  
+}
+
+// Print the valve names and indices
+
+void ZeolitePath::PrintValves()
+{
+  Serial.println("\nValve numbers:");
+  for(int valve = 0; valve < numberOfValves; valve++)
+  {
+    Serial.print(" ");
+    Serial.print(valve);
+    Serial.print(": ");
+    Serial.println(valveNames[valve]);   
+  }
+  Serial.println();
 }

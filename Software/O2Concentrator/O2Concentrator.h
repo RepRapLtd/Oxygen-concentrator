@@ -43,10 +43,9 @@ void PrintDeciSeconds(long d);
 
 // Globals
 
-extern const bool debug;
-extern long o2FeedTime;
-extern long purgingTime;
-extern long shuttingDownTime;
+extern bool debug;
+extern const int numberOfValves;
+extern const int sequenceSteps;
 
 
 #endif
