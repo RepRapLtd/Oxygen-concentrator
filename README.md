@@ -111,9 +111,9 @@ Version 2 is neither final nor prototyped yet, but there is nothing to stop you 
 
 ## Useful links
 
-There are other open O2 concentrators out there - marked with a *
+There are other open O2 concentrators out there - marked (:
 
-https://github.com/EnAccess/OpenO2 *
+https://github.com/EnAccess/OpenO2 (:
 
 http://users.wpi.edu/~mpopovic/pages/OxygenConcentrator.html
 
@@ -123,7 +123,7 @@ https://youtu.be/27lndEFP2DU
 
 https://youtu.be/GxclrM270gA
 
-https://github.com/oxycon/ProjectApollo *
+https://github.com/oxycon/ProjectApollo (:
 
 https://youtu.be/jhrS0ttp-mU
 
