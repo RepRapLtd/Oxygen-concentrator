@@ -30,12 +30,6 @@ const int numberOfValves = 4;
 
 const int sequenceSteps = 2*numberOfValves + 1;
 
-// The names of the valves. "start-other-arm" isn't a valve; it's
-// the point in one arm's sequence that it tells the other arm to start its sequence.
-// We also have an enum for this to make the code easier to read.
-
-const char* valveNames[numberOfValves+1] = { "feed_in", "purge_in", "o2_out", "purge_out", "start_other_arm" };
-
 class ZeolitePath
 {
   public:

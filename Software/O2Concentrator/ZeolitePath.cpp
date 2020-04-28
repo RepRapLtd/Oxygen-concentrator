@@ -19,6 +19,12 @@
 
 #include "O2Concentrator.h"
 
+// The names of the valves. "start-other-arm" isn't a valve; it's
+// the point in one arm's sequence that it tells the other arm to start its sequence.
+// We also have an enum for this to make the code easier to read.
+
+const char* valveNames[numberOfValves+1] = { "feed_in", "purge_in", "o2_out", "purge_out", "start_other_arm" };
+
 // ZeolitePath is one half of the Oxygen Concentrator - either the left or the right arm.
 
 // The constructor needs to know the valve pins and its name
@@ -86,11 +92,26 @@ void ZeolitePath::DoThisStep()
   
   if(valve == numberOfValves)
   {
+    if(debug)
+    {
+      Serial.print(GetName());
+      Serial.println(" is triggering the other path.");
+    }
     otherPath->StartSequence();
     return;
   }
 
   digitalWrite(pins[valve], open);  
+  if(debug)
+  {
+    Serial.print(GetName());
+    Serial.print(" is ");
+    if(open)
+      Serial.print("opening");
+    else
+      Serial.print("closing"); 
+    Serial.println(valveNames[valve]);  
+  }
 }
 
 
@@ -98,14 +119,21 @@ void ZeolitePath::DoThisStep()
     
 void ZeolitePath::StartSequence()
 {
+  if(debug)
+    Serial.print(GetName());
+  
   pointInSequence = 0;
   lastTime = millis();
   if(O2Demanded())
   {
     active = true;
+    Serial.println(" is starting its sequence.");
     DoThisStep();
   } else
-    active = false;  
+  {
+    active = false;
+    Serial.println(" is now idle.");
+  }  
 }
 
 // Go to the next step
