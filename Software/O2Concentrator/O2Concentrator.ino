@@ -28,8 +28,8 @@ ZeolitePath* right = new ZeolitePath(rPins, "Right");
 
 // The default sequence
 
-const int defaultSequence[sequenceSteps] = {};
-const long defaultTimes[sequenceSteps] = {};
+const int defaultSequence[sequenceSteps] = {1, 2, -1, -2, 3, 4, 5, -3, -4};
+const long defaultTimes[sequenceSteps] = {1000, 5000, 0, 0, 0, 0, 0, 5000, 0};
 
 // Print debugging information when true.
 
@@ -85,7 +85,7 @@ void SaveToEeprom(ZeolitePath* zp)
   if(debug)
   {
     Serial.print("Saving ");
-    Serial.print(zp->Name());
+    Serial.print(zp->GetName());
     Serial.println(" sequence to EEPROM.");
   }
     
@@ -96,8 +96,8 @@ void SaveToEeprom(ZeolitePath* zp)
       ptr++;
   }
 
-  int sequence[] = zp->GetSequence();
-  long times[] = zp->GetTimes();
+  int* sequence = zp->GetSequence();
+  long* times = zp->GetTimes();
 
   for(int ss = 0; ss < sequenceSteps; ss++)
   {
@@ -111,7 +111,7 @@ void SaveToEeprom(ZeolitePath* zp)
 void LoadDefaults(ZeolitePath* zp1, ZeolitePath* zp2)
 {
   if(debug)
-    Serial.println("Loading default variables.");
+    Serial.println("Loading default sequence into both paths.");
 
   zp1->SetSequenceAndTimes(defaultSequence, defaultTimes);
   zp2->SetSequenceAndTimes(defaultSequence, defaultTimes); 
@@ -136,7 +136,7 @@ void LoadDataFromEepromOrSetDefaults(ZeolitePath* zp1, ZeolitePath* zp2)
   }
 
   if(debug)
-    Serial.println("Loading variables from EEPROM.");
+    Serial.println("Loading sequence from EEPROM into both paths.");
 
   int sequence[sequenceSteps];
   long s;
@@ -168,32 +168,22 @@ void PrintDeciSeconds(long d)
 
 void PrintState()
 {
-  
+  Serial.println("Current O2 Concentrator sequences:");
+  Serial.println(" All times in milliseconds. *current state*.");
+  left->PrintSequence();
+  right->PrintSequence();  
 }
 
 // Print prompts to refresh the user's memory
 
 void Help()
 {
-  Serial.print("\nConcentrator state:\n ");
-  Serial.print(left->GetName());
-  Serial.print(" is ");
-  PrintState(left->GetState());
-  Serial.print(".\n ");
-  Serial.print(right->GetName());
-  Serial.print(" is ");
-  PrintState(right->GetState());
-  Serial.println(".");
-  Serial.println("Concentrator variables:");
-  Serial.println(" All times in milliseconds. Current values in brackets.");
-  Serial.print(" Oxygen feed time (");  
-  Serial.print(o2FeedTime);
-  Serial.print(") - o\n Purging time (");
-  Serial.print(purgingTime);
-  Serial.print(") - p\n Shutting down delay (");
-  Serial.print(shuttingDownTime);
-  Serial.println(") - s\n Load default values - d");
-  Serial.println(" Print this list - ?\n");
+  Serial.println("\nMenu:");
+  Serial.println(" d - Load the default sequence");
+  Serial.println(" p - Print the state of the machine");
+  Serial.println(" s - Set a new sequence");  
+  Serial.println(" t - Set new timings"); 
+  Serial.println(" ? - Print this list");
 }
 
 // Get an integer from what the user types
@@ -211,6 +201,16 @@ bool O2Demanded()
   return !digitalRead(o2LevelLow);
 }
 
+void NewSequence()
+{
+  
+}
+
+void NewTimes()
+{
+  
+}
+
 // Allow the user to change values.
 // Save all the values to EEPROM whenever one changes.
 
@@ -219,44 +219,37 @@ void Command()
 
   if(Serial.available() <= 0)
     return;
-
-  bool save = true;
     
-  int c = Serial.read();
+  int c = tolower(Serial.read());
   switch(c)
   {
-    case 'o':
-      o2FeedTime = ReadInteger();
+    case 'd':
+      LoadDefaults(left, right);
       break;
 
     case 'p':
-      purgingTime = ReadInteger();
+      PrintState();
       break;
       
     case 's':
-      shuttingDownTime = ReadInteger();
+      NewSequence();
       break;
 
-    case 'd':
-      LoadDefaults();
-      save = false;
+    case 't':
+      NewTimes();
       break;
       
     case '?':
     default:
       Help();
-      save = false;
   }
-
-  if(save)
-    SaveToEeprom();
 }
 
 // Control O2 generation
 
 void Control()
 {
-  // Keep the left and right arms working
+  // Keep the left and right paths working
   
   left->Spin();
   right->Spin();
@@ -283,7 +276,6 @@ void Control()
 
 void setup() 
 {
-
   // O2 level sensor pins
 
   pinMode(o2LevelLow, INPUT_PULLUP);
@@ -297,7 +289,7 @@ void setup()
   Serial.begin(BAUD);
   Serial.println("RepRap Ltd Oxygen Concentrator Starting");
  
-  LoadDataFromEepromOrSetDefaults();
+  LoadDataFromEepromOrSetDefaults(left, right);
 
   Help();
 }

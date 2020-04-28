@@ -22,11 +22,19 @@
 #ifndef ZEOLITEPATH_H
 #define ZEOLITEPATH_H
 
+// Number of valves in one arm of the machine
+
+const int numberOfValves = 4;
+
+// Each valve has an on and an off, plus we have to tell the other arm to start
+
+const int sequenceSteps = 2*numberOfValves + 1;
+
 // The names of the valves. "start-other-arm" isn't a valve; it's
 // the point in one arm's sequence that it tells the other arm to start its sequence.
 // We also have an enum for this to make the code easier to read.
 
-char** valveNames = { "feed_in", "purge_in", "o2_out", "purge_out", "start_other_arm" };
+const char* valveNames[numberOfValves+1] = { "feed_in", "purge_in", "o2_out", "purge_out", "start_other_arm" };
 
 class ZeolitePath
 {
@@ -34,11 +42,11 @@ class ZeolitePath
 
     // The constructor needs to know the valve pins and name
     
-    ZeolitePath(int pns[], char* n);
+    ZeolitePath(const int pns[], const char* n);
 
     // Set the valve sequence and timings
     
-    SetSequenceAndTimes(int seq[], long tims[]);
+    void SetSequenceAndTimes(const int seq[], const long tims[]);
 
     // Tell this path about the opposite path in the machine
     
@@ -53,21 +61,17 @@ class ZeolitePath
     
     void StartSequence();
 
-    // Return the current activity
-    
-    int PointInSequence();
-
     // Return the current name
 
-    char* GetName();
+    const char* GetName();
 
     // Return the current sequence
 
-    int[] GetSequence();
+    int* GetSequence();
 
     // Return the current timings
 
-    long[] GetTimes();
+    long* GetTimes();
 
     // Are we busy?
 
@@ -101,7 +105,7 @@ class ZeolitePath
 
     // The timings
     
-    int times[sequenceSteps];
+    long times[sequenceSteps];
 
     // The other half of the machine
 
@@ -113,9 +117,9 @@ class ZeolitePath
 
     // For messages etc.
 
-    char* name;
+    const char* name;
 
-        // Are we active?
+    // Are we active?
 
     bool active;
 
@@ -133,20 +137,16 @@ inline void ZeolitePath::SetOtherPath(ZeolitePath* op) { otherPath = op; }
 
 inline bool ZeolitePath::Active() { return active; }
 
-// What are we doing?
-
-inline int ZeolitePath::PointInSequence() { return pointInSequence; }
-
 // Who?
 
-inline char* ZeolitePath::GetName() { return name; }
+inline const char* ZeolitePath::GetName() { return name; }
 
 // The whole sequence
 
-inline int[] ZeolitePath::GetSequence() { return sequence; }
+inline int* ZeolitePath::GetSequence() { return sequence; }
 
 // All the timings
 
-inline long[] ZeolitePath::GetTimes() { return times; }
+inline long* ZeolitePath::GetTimes() { return times; }
 
 #endif

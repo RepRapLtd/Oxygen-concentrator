@@ -21,6 +21,7 @@
 #ifndef O2CONCENTRATOR_H
 #define O2CONCENTRATOR_H
 
+//#include <ctype.h>
 #include <Arduino.h>
 
 // We need to save the parameters for when we reboot.

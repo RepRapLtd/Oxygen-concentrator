@@ -21,17 +21,9 @@
 
 // ZeolitePath is one half of the Oxygen Concentrator - either the left or the right arm.
 
-// Number of valves in one arm of the machine
-
-const int numberOfValves = 4;
-
-// Each valve has an on and an off, plus we have to tell the other arm to start
-
-const int sequenceSteps = 2*numberOfValves + 1;
-
 // The constructor needs to know the valve pins and its name
     
-ZeolitePath(int pns[], char* n)
+ZeolitePath::ZeolitePath(const int pns[], const char* n)
 {
 
   for(int valve = 0; valve < numberOfValves; valve++)
@@ -61,10 +53,9 @@ ZeolitePath(int pns[], char* n)
 }
 
 
-
 // Set the valve sequence and timings
     
-void ZeolitePath::SetSequenceAndTimes(int seq[], long tims[])
+void ZeolitePath::SetSequenceAndTimes(const int seq[], const long tims[])
 {
   for(int ss = 0; ss < sequenceSteps; ss++)
   {
@@ -147,7 +138,7 @@ void ZeolitePath::Spin()
 void ZeolitePath::PrintSequence()
 {
   bool open;
-  Serial.print("\nThe ");
+  Serial.print("\n The ");
   Serial.print(name);
   Serial.println(" sequence is: ");
   for(int ss = 0; ss < sequenceSteps; ss++)
@@ -156,7 +147,7 @@ void ZeolitePath::PrintSequence()
     Serial.print(ss);
     Serial.print(": ");
     int valve = sequence[ss];
-    loing t = times[ss];
+    long t = times[ss];
     open = true;
     if(valve < 0)
     {
@@ -164,7 +155,11 @@ void ZeolitePath::PrintSequence()
       valve = abs(valve);
     }
     valve--;
+    if(ss == pointInSequence)
+      Serial.print('*');
     Serial.print(valveNames[valve]);
+    if(ss == pointInSequence)
+      Serial.print('*');
     if(valve != numberOfValves)
     {
        if(open)
@@ -176,7 +171,11 @@ void ZeolitePath::PrintSequence()
        Serial.println("ms >");
     }
   }
-  Serial.println();  
+  Serial.print(" This path is ");
+  if(Active())
+    Serial.println("active.\n");
+  else
+    Serial.println("idle.\n");  
 }
 
 // Print the valve names and indices
