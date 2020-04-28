@@ -19,11 +19,11 @@
 
 #include "O2Concentrator.h"
 
-// The names of the valves. "start-other-arm" isn't a valve; it's
+// The names of the valves. "start-other-path" isn't a valve; it's
 // the point in one arm's sequence that it tells the other arm to start its sequence.
 // We also have an enum for this to make the code easier to read.
 
-const char* valveNames[numberOfValves+1] = { "feed_in", "purge_in", "o2_out", "purge_out", "start_other_arm" };
+const char* valveNames[numberOfValves+1] = { "feed_in", "purge_in", "o2_out", "purge_out", "start_other_path" };
 
 // ZeolitePath is one half of the Oxygen Concentrator - either the left or the right arm.
 
@@ -58,6 +58,66 @@ ZeolitePath::ZeolitePath(const int pns[], const char* n)
   pointInSequence = 0;
 }
 
+// Save all the settings to the EEPROM, starting with the validation tag string
+
+void ZeolitePath::SaveToEEPROM()
+{
+  if(debug)
+  {
+    Serial.print("Saving ");
+    Serial.print(GetName());
+    Serial.println(" sequence to EEPROM.");
+  }
+    
+  int ptr = 0;
+  while(eTag[ptr])
+  {
+      EEPROM.write(ptr, eTag[ptr]);
+      ptr++;
+  }
+
+  for(int ss = 0; ss < sequenceSteps; ss++)
+  {
+    ptr = EepromWriteLong(ptr, (long)sequence[ss]);
+    ptr = EepromWriteLong(ptr, times[ss]);
+  }
+}
+
+bool ZeolitePath::LoadFromEEPROM()
+{
+  // Check if the EEPROM is valid
+  
+  int ptr = 0;
+  while(eTag[ptr])
+  {
+    if(EEPROM.read(ptr) != eTag[ptr])
+      return false;
+    ptr++;
+  }
+
+  if(debug)
+  {
+    Serial.print(GetName());
+    Serial.println(" loading sequence from EEPROM.");
+  }
+
+  long s; 
+
+  for(int ss = 0; ss < sequenceSteps; ss++)
+  {
+    ptr = EepromReadLong(ptr, s);
+    sequence[ss] = (int)s;
+    ptr = EepromReadLong(ptr, times[ss]);
+  }
+
+  CopySequenceToOtherPath();
+  active = false;
+  lastTime = millis();
+  pointInSequence = 0;
+  CloseAllValves();
+  return true;
+}
+
 
 // Set the valve sequence and timings
     
@@ -68,6 +128,42 @@ void ZeolitePath::SetSequenceAndTimes(const int seq[], const long tims[])
     sequence[ss] = seq[ss];
     times[ss] = tims[ss]; 
   }
+  SaveToEEPROM();
+  CopySequenceToOtherPath();
+  active = false;
+  lastTime = millis();
+  pointInSequence = 0;
+  CloseAllValves();
+}
+
+// Set the valve sequence and timings from serial input
+
+void ZeolitePath::SetSequenceAndTimes()
+{
+  // TODO put some code in here
+  SaveToEEPROM();
+  CopySequenceToOtherPath();
+}
+
+// Copy the sequence to the other path.  We can't call SetSequenceAndTimes for it
+// as that would give infinite recursion.
+
+void ZeolitePath::CopySequenceToOtherPath()
+{
+  for(int ss = 0; ss < sequenceSteps; ss++)
+  {
+    otherPath->sequence[ss] = sequence[ss];
+    otherPath->times[ss] = times[ss]; 
+  } 
+  otherPath->active = false;
+  otherPath->lastTime = millis();
+  otherPath->pointInSequence = 0;
+  if(debug)
+  {
+    Serial.print("Sequence copied to ");
+    Serial.println(otherPath->GetName());
+  }
+  otherPath->CloseAllValves();
 }
 
 // Execute one step in the sequence.
@@ -95,7 +191,9 @@ void ZeolitePath::DoThisStep()
     if(debug)
     {
       Serial.print(GetName());
-      Serial.println(" is triggering the other path.");
+      Serial.print(" is triggering the other path at t = ");
+      PrintDeciSeconds(millis()/100);
+      Serial.println();
     }
     otherPath->StartSequence();
     return;
@@ -107,10 +205,13 @@ void ZeolitePath::DoThisStep()
     Serial.print(GetName());
     Serial.print(" is ");
     if(open)
-      Serial.print("opening");
+      Serial.print("opening ");
     else
-      Serial.print("closing"); 
-    Serial.println(valveNames[valve]);  
+      Serial.print("closing "); 
+    Serial.print(valveNames[valve]);
+    Serial.print(" at t = ");
+    PrintDeciSeconds(millis()/100);
+    Serial.println();  
   }
 }
 
@@ -133,6 +234,7 @@ void ZeolitePath::StartSequence()
   {
     active = false;
     Serial.println(" is now idle.");
+    CloseAllValves();
   }  
 }
 
@@ -145,6 +247,19 @@ void ZeolitePath::StepSequence()
     StartSequence();
   else
     DoThisStep();
+}
+
+// Make sure all valves are closed
+
+void ZeolitePath::CloseAllValves()
+{
+  if(debug)
+  {
+    Serial.print(GetName());
+    Serial.println(" is closing all its valves.");
+  }
+  for(int valve = 0; valve < numberOfValves; valve++)
+    digitalWrite(pins[valve], LOW);  
 }
 
 // Called in the main loop to run the valve sequence.  This should neither call delay()
@@ -194,16 +309,18 @@ void ZeolitePath::PrintSequence()
         Serial.print(" opens");
        else
         Serial.print(" closes");
-       Serial.print(" < wait: ");
-       Serial.print(t);
-       Serial.println("ms >");
     }
+    Serial.print(" <wait ");
+    Serial.print(t);
+    Serial.println("ms>");
   }
-  Serial.print(" This path is ");
+  Serial.print(" ");
+  Serial.print(GetName());
+  Serial.print(" path is ");
   if(Active())
-    Serial.println("active.\n");
+    Serial.println("active.");
   else
-    Serial.println("idle.\n");  
+    Serial.println("idle.");  
 }
 
 // Print the valve names and indices
@@ -211,10 +328,10 @@ void ZeolitePath::PrintSequence()
 void ZeolitePath::PrintValves()
 {
   Serial.println("\nValve numbers:");
-  for(int valve = 0; valve < numberOfValves; valve++)
+  for(int valve = 0; valve <= numberOfValves; valve++)
   {
     Serial.print(" ");
-    Serial.print(valve);
+    Serial.print(valve + 1);
     Serial.print(": ");
     Serial.println(valveNames[valve]);   
   }

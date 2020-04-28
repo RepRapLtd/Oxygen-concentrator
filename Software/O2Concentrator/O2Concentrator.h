@@ -28,11 +28,16 @@
 
 #include <EEPROM.h>
 
-#include "ZeolitePath.h"
-
 // True when O2 is needed
 
 bool O2Demanded();
+
+// EEPROM writing and reading
+
+int EepromWriteLong(int ptr, long v);
+int EepromReadLong(int ptr, long& v);
+
+#include "ZeolitePath.h"
 
 // Print deciseconds with a decimal point
 
@@ -47,6 +52,6 @@ void PrintDeciSeconds(long d);
 extern bool debug;
 extern const int numberOfValves;
 extern const int sequenceSteps;
-
+extern const char* eTag;
 
 #endif

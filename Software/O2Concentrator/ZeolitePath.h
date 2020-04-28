@@ -42,6 +42,10 @@ class ZeolitePath
     
     void SetSequenceAndTimes(const int seq[], const long tims[]);
 
+    // Set the valve sequence and timings from serial input
+
+    void SetSequenceAndTimes();
+
     // Tell this path about the opposite path in the machine
     
     void SetOtherPath(ZeolitePath* op);
@@ -59,13 +63,13 @@ class ZeolitePath
 
     const char* GetName();
 
-    // Return the current sequence
+    // Save the sequence to EEPROM
 
-    int* GetSequence();
+    void SaveToEEPROM();
 
-    // Return the current timings
+    // Load the sequence from EEPROM
 
-    long* GetTimes();
+    bool LoadFromEEPROM();
 
     // Are we busy?
 
@@ -78,8 +82,13 @@ class ZeolitePath
     // Print the valve names and indices
 
     void PrintValves();
+    
 
   private:
+
+    // Copy the sequence and timings to the other path
+
+    void CopySequenceToOtherPath();
 
     // One step forward in the sequence
     
@@ -88,6 +97,10 @@ class ZeolitePath
     // Do this step in the sequence
 
     void DoThisStep();
+
+    // Make sure all valves are closed
+
+    void CloseAllValves();
 
     // The Arduino pins that drive the solenoid valves
 
@@ -134,13 +147,5 @@ inline bool ZeolitePath::Active() { return active; }
 // Who?
 
 inline const char* ZeolitePath::GetName() { return name; }
-
-// The whole sequence
-
-inline int* ZeolitePath::GetSequence() { return sequence; }
-
-// All the timings
-
-inline long* ZeolitePath::GetTimes() { return times; }
 
 #endif
