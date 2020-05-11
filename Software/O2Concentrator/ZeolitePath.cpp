@@ -140,9 +140,48 @@ void ZeolitePath::SetSequenceAndTimes(const int seq[], const long tims[])
 
 void ZeolitePath::SetSequenceAndTimes()
 {
-  // TODO put some code in here
+  PrintSequence();
+  PrintValves();
+  
+  Serial.println("Input a step in the new sequence as <step number> <space> <action> <ENTER>.  End with a negative step number.");
+  bool reading = true;
+  int ss;
+  while(reading)
+  {
+    ss = ReadInteger();
+    if(ss < 0)
+      reading = false;
+    else
+    {
+      sequence[ss] = ReadInteger();
+      Serial.print(ss);
+      Serial.print(' ');
+      Serial.println(sequence[ss]);      
+    }
+  }
+
+  Serial.println("Input a time in the new sequence as <step number> <space> <time in ms> <ENTER>.  End with a negative step number.");
+  reading = true;
+  while(reading)
+  {
+    ss = ReadInteger();
+    if(ss < 0)
+      reading = false;
+    else
+    {
+      times[ss] = ReadInteger();
+      Serial.print(ss);
+      Serial.print(' ');
+      Serial.println(times[ss]);      
+    }
+  }
+
   SaveToEEPROM();
   CopySequenceToOtherPath();
+  active = false;
+  lastTime = millis();
+  pointInSequence = 0;
+  CloseAllValves();
 }
 
 // Copy the sequence to the other path.  We can't call SetSequenceAndTimes for it
@@ -281,7 +320,7 @@ void ZeolitePath::Spin()
 void ZeolitePath::PrintSequence()
 {
   bool open;
-  Serial.print("\n The ");
+  Serial.print("\n The current ");
   Serial.print(name);
   Serial.println(" sequence is: ");
   for(int ss = 0; ss < sequenceSteps; ss++)
@@ -297,9 +336,17 @@ void ZeolitePath::PrintSequence()
       open = false;
       valve = abs(valve);
     }
-    valve--;
     if(ss == pointInSequence)
       Serial.print('*');
+    else
+      Serial.print(' ');
+    if(!open)
+      Serial.print('-');
+    else
+      Serial.print(' ');
+    Serial.print(valve);
+    Serial.print(' ');
+    valve--;
     Serial.print(valveNames[valve]);
     if(ss == pointInSequence)
       Serial.print('*');

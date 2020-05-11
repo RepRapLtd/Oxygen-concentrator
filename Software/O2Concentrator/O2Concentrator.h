@@ -43,6 +43,10 @@ int EepromReadLong(int ptr, long& v);
 
 void PrintDeciSeconds(long d);
 
+// Read a number from serial input 
+
+long ReadInteger();
+
 // Serial comms speed
 
 #define BAUD 9600

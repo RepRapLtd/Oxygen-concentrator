@@ -224,6 +224,10 @@ void setup()
   Serial.begin(BAUD);
   Serial.println("RepRap Ltd Oxygen Concentrator Starting");
 
+  // Having a timeout on serial input is very silly and annoying.
+  
+  Serial.setTimeout(30000);
+
   // Loading one side also loads the other
   
   if(!left->LoadFromEEPROM())
