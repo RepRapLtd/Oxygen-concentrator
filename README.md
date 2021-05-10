@@ -4,6 +4,8 @@ This is the [RepRap Ltd](https://reprapltd.com) repository for all the informati
 
 ## Status (repository dev branch)
 
+This design is **not yet working**.  We think the problem is that the Zeolite has too much water in it. If you want to take this further, try drying the zeolite in an oven above 100<sup>o</sup>C, putting it in a sealed container, allowing it to cool, then loading it into the machine.
+
 ### Version 2 prototype:
 
 1. Flow diagram/design: finished.
