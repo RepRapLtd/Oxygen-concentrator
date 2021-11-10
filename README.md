@@ -85,7 +85,7 @@ Version 2 is neither final nor prototyped yet, but there is nothing to stop you 
 
 3. Electronics
 
-   [Kicad](https://www.kicad-pcb.org/) design for the Arduino Uno shield that controls the device
+   [Kicad](https://www.kicad.org/) design for the Arduino Uno shield that controls the device
 
 4. LICENSE
 
